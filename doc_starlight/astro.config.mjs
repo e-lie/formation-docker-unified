@@ -10,35 +10,35 @@ export default defineConfig({
 	integrations: [
 		mermaid(),
 		starlight({
-			title: 'Formation Kubernetes',
-			description: 'Guide complet pour apprendre Kubernetes, Helm et Istio',
+			title: 'Formation Docker',
+			description: 'Guide complet pour apprendre Docker et la conteneurisation',
 			social: [
-				{ icon: 'github', label: 'GitHub', href: 'https://github.com/e-lie/formation-kubernetes-unified' }
+				{ icon: 'github', label: 'GitHub', href: 'https://github.com/e-lie/formation-docker' }
 			],
 			sidebar: [
 				{
-					label: 'Cours principal',
-					autogenerate: { directory: 'kubernetes-principal' },
+					label: 'Docker - Fondamentaux',
+					autogenerate: { directory: 'docker-fondamentaux' },
 				},
 				{
-					label: 'Aspects avancés',
-					autogenerate: { directory: 'bonus' },
+					label: 'Images & Dockerfiles',
+					autogenerate: { directory: 'images-dockerfiles' },
 				},
 				{
-					label: 'GitOps & ArgoCD',
-					autogenerate: { directory: 'gitops-argocd' },
+					label: 'Volumes & Réseaux',
+					autogenerate: { directory: 'volumes-reseaux' },
 				},
 				{
-					label: 'Clusters On-Premise',
-					autogenerate: { directory: 'clusters-onpremise' },
+					label: 'Déploiement & Orchestration',
+					autogenerate: { directory: 'deploiement-orchestration' },
 				},
-				// {
-				// 	label: 'Statefulness & Storage',
-				// 	autogenerate: { directory: 'statefulness-storage' },
-				// },
 				{
-					label: 'Microservices & Istio',
-					autogenerate: { directory: 'microservices-istio' },
+					label: 'Sécurité & Observabilité',
+					autogenerate: { directory: 'securite-observabilite' },
+				},
+				{
+					label: 'CI/CD & Bonus',
+					autogenerate: { directory: 'cicd-bonus' },
 				},
 			],
 			customCss: [

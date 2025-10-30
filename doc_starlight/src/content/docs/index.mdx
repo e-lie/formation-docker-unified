@@ -1,19 +1,19 @@
 ---
-title: Formation Kubernetes
-description: Guide complet pour apprendre Kubernetes
+title: Formation Docker
+description: Guide complet pour apprendre Docker et la conteneurisation
 template: splash
 hero:
-  tagline: Apprenez Kubernetes de zéro avec des exercices pratiques !
+  tagline: Apprenez Docker de zéro avec des exercices pratiques !
   image:
-    alt: Terraform
+    alt: Docker
     file: ../../assets/houston.webp
   actions:
     - text: Commencer la formation
-      link: /kubernetes-principal/000-cours-intro/
+      link: /docker-fondamentaux/100-pourquoi-docker-process-conteneurises/
       icon: right-arrow
       variant: primary
     - text: Voir sur GitHub
-      link: https://github.com/e-lie/formation-kube-unified
+      link: https://github.com/e-lie/formation-docker
       icon: external
       variant: minimal
 ---
@@ -22,62 +22,64 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 
 ## Contenu de la formation
 
-Cette formation vous accompagne pas à pas dans l'apprentissage de Terraform avec AWS. Chaque partie inclut de la théorie, des exercices pratiques et des exemples concrets.
+Cette formation vous accompagne pas à pas dans l'apprentissage de Docker et de la conteneurisation. Chaque partie inclut de la théorie, des exercices pratiques et des exemples concrets.
 
 <CardGrid stagger>
-	<Card title="🚀 Bases de Terraform" icon="rocket">
-		- Installation et configuration
-		- Premier déploiement AWS
-		- Providers et ressources
-		- **TP1** : Serveur simple avec AWS
+	<Card title="🚀 Fondamentaux Docker" icon="rocket">
+		- Processus conteneurisés
+		- Premiers pas avec Docker
+		- Créer, lister et détruire des conteneurs
+		- **TP** : Manipulation de conteneurs
 	</Card>
-	<Card title="🔧 Configuration avancée" icon="setting">
-		- Images personnalisées avec Packer
-		- Provisioners SSH
-		- VPC et networking
-		- **TP2-4** : Infrastructure réseau complète
+	<Card title="📦 Images & Dockerfiles" icon="puzzle">
+		- Les Dockerfiles
+		- Systèmes de base
+		- Build multistage
+		- Registries Docker
+		- Optimisation d'images
 	</Card>
-	<Card title="📁 Organisation des projets" icon="open-book">
-		- Structure des fichiers
-		- Variables et outputs
-		- Workspaces et environnements
-		- **TP5-6** : Projets structurés
+	<Card title="💾 Volumes & Réseaux" icon="setting">
+		- Gestion des volumes
+		- Réseaux Docker
+		- DNS et isolation réseau
+		- **TP** : Volumes et réseaux
 	</Card>
-	<Card title="🤝 Collaboration" icon="github">
-		- Backend S3 distant
-		- État partagé
-		- CI/CD avec Terraform
-		- **TP7** : Travail en équipe
+	<Card title="🔧 Déploiement & Orchestration" icon="star">
+		- Variables d'environnement
+		- Secrets Docker
+		- Docker Compose
+		- Reverse proxy
+		- Aperçu de Kubernetes
 	</Card>
-	<Card title="⚡ Haute disponibilité" icon="star">
-		- Count et for_each
-		- Load balancers
-		- Auto-scaling
-		- **TP8** : Infrastructure résiliente
+	<Card title="🔒 Sécurité & Observabilité" icon="shield">
+		- Grandes lignes de sécurité
+		- Rootless mode
+		- Observabilité des conteneurs
+		- **TP** : Sécurisation
 	</Card>
-	<Card title="🧩 Modules et réutilisabilité" icon="puzzle">
-		- Création de modules
-		- Gestion d'état avancée
-		- Refactorisation
-		- **TP9** : Modules personnalisés
+	<Card title="⚙️ CI/CD & Bonus" icon="github">
+		- Mise en œuvre CI avec GitLab
+		- Docker Swarm
+		- Jenkins dans Kubernetes
+		- Conclusion
 	</Card>
 </CardGrid>
 
 ## Prérequis
 
-- Compte AWS (free tier suffisant)
 - Connaissance de base de Linux/Bash
 - Notions de networking (IP, DNS, ports)
-- Aucune expérience Terraform requise !
+- Accès à un environnement Linux (VM, WSL, ou natif)
+- Aucune expérience Docker requise !
 
-## Structure des TP
+## Structure de la formation
 
-Chaque TP suit la même structure :
+Chaque module suit la même structure :
 1. **Théorie** : Concepts expliqués simplement
 2. **Pratique** : Exercices guidés étape par étape
-3. **Code** : Exemples complets commentés
-4. **Vérification** : Tests de bon fonctionnement
+3. **Exemples** : Code complet et commenté
+4. **TP** : Travaux pratiques pour consolider les acquis
 
 ---
 
-**Prêt à commencer ?** [Lancez-vous avec le TP1 →](/guides/100-cours-intro/)
+**Prêt à commencer ?** [Lancez-vous avec les fondamentaux →](/docker-fondamentaux/100-pourquoi-docker-process-conteneurises/)

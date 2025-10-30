@@ -20,35 +20,35 @@ const BASE_PATH = process.env.BASE_PATH || '';
 
 // Configuration des sections
 const SECTIONS = [
-  { 
-    name: 'section_kubernetes_principal',
-    targetDir: 'kubernetes-principal',
-    label: 'Kubernetes Principal'
+  {
+    name: 'section_docker_fondamentaux',
+    targetDir: 'docker-fondamentaux',
+    label: 'Docker - Fondamentaux'
   },
-  { 
-    name: 'section_gitops_argocd',
-    targetDir: 'gitops-argocd',
-    label: 'GitOps & ArgoCD'
+  {
+    name: 'section_images_dockerfiles',
+    targetDir: 'images-dockerfiles',
+    label: 'Images & Dockerfiles'
   },
-  { 
-    name: 'section_clusters_onpremise',
-    targetDir: 'clusters-onpremise',
-    label: 'Clusters On-Premise'
+  {
+    name: 'section_volumes_reseaux',
+    targetDir: 'volumes-reseaux',
+    label: 'Volumes & Réseaux'
   },
-  { 
-    name: 'section_statefulness_storage',
-    targetDir: 'statefulness-storage',
-    label: 'Statefulness & Storage'
+  {
+    name: 'section_deploiement_orchestration',
+    targetDir: 'deploiement-orchestration',
+    label: 'Déploiement & Orchestration'
   },
-  { 
-    name: 'section_microservices_istio',
-    targetDir: 'microservices-istio',
-    label: 'Microservices & Istio'
+  {
+    name: 'section_securite_observabilite',
+    targetDir: 'securite-observabilite',
+    label: 'Sécurité & Observabilité'
   },
-  { 
-    name: 'section_bonus',
-    targetDir: 'bonus',
-    label: 'Modules Bonus'
+  {
+    name: 'section_cicd_bonus',
+    targetDir: 'cicd-bonus',
+    label: 'CI/CD & Bonus'
   }
 ];
 
