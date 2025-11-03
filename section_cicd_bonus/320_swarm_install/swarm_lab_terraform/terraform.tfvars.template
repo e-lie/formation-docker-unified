@@ -1,0 +1,16 @@
+hcloud_token    = "votre_token_ici"
+prefix          = "elie"
+username        = "elie"
+server_type     = "cx22"
+node_count      = 3
+docker_mode     = "standard"  # "standard" ou "rootless"
+enable_swarm    = false       # true pour activer Docker Swarm (incompatible avec rootless)
+hcloud_ssh_keys = ["id-guacamole-infra"]
+
+# Configuration DNS (optionnel)
+enable_dns          = true              # true pour créer des enregistrements DNS automatiquement
+digitalocean_token  = ""                # Token DigitalOcean (requis si enable_dns = true)
+dns_domain          = "dopl.uk"         # Domaine racine
+dns_subdomain       = "swarm"           # Sous-domaine (ex: swarm.dopl.uk)
+dns_ttl             = 300               # TTL des enregistrements DNS
+dns_create_wildcard = true              # Créer *.prefix-server-N.subdomain.domain pour chaque nœud
