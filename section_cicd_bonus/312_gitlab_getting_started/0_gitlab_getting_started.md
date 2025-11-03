@@ -85,6 +85,15 @@ Les jobs sont les unités de travail fondamentales qui contiennent :
 - `image` : L'image Docker à utiliser pour l'exécution
 - `services` : Services Docker supplémentaires (bases de données, etc.)
 
+**6. Les Environnements**
+
+Les environnements représentent des cibles de déploiement et permettent de tracker les déploiements :
+- `environment.name` : Nom de l'environnement (production, staging, review/*)
+- `environment.url` : URL pour accéder à l'application déployée
+- `environment.on_stop` : Job à exécuter pour arrêter l'environnement
+- `environment.auto_stop_in` : Durée avant arrêt automatique (pour review apps)
+- Tiers automatiques : production, staging, testing, development
+
 #### Structure de base d'un `.gitlab-ci.yml`
 
 ```yaml
@@ -388,47 +397,34 @@ deploy-production:
     - main
 ```
 
-#### 6. Les Environnements
+#### Les Environnements
 
-Les environnements GitLab représentent des cibles de déploiement (development, staging, production) et permettent de **tracker l'historique des déploiements**, gérer les rollbacks, et contrôler les accès.
+Les environnements GitLab permettent de tracker l'historique des déploiements, gérer les rollbacks, et contrôler les accès aux différentes cibles de déploiement.
 
-##### Concept d'environnement
+##### Configuration des environnements
 
-Un environnement dans GitLab est une représentation d'un lieu de déploiement. Il permet :
-- De **suivre quelle version du code** est déployée où
-- D'avoir un **historique complet** des déploiements
-- De **revenir à une version antérieure** (rollback) en un clic
-- De **protéger les environnements** critiques (production)
-- De **visualiser l'état** de chaque environnement dans l'interface GitLab
-
-##### Types d'environnements
-
-**Environnements statiques** (persistants)
-
-Ce sont des environnements réutilisés à travers les déploiements :
+**Environnement statique** (production, staging) :
 
 ```yaml
 deploy-production:
   stage: deploy
   script:
-    - echo "Déploiement en production"
     - ./deploy-prod.sh
   environment:
     name: production
     url: https://app.example.com
+    deployment_tier: production
+  when: manual
   only:
     - main
 ```
 
-**Environnements dynamiques** (temporaires)
-
-Créés à la demande, typiquement pour les review apps :
+**Environnement dynamique** (review apps) :
 
 ```yaml
 deploy-review:
   stage: deploy
   script:
-    - echo "Déploiement de la review app"
     - ./deploy-review.sh $CI_COMMIT_REF_SLUG
   environment:
     name: review/$CI_COMMIT_REF_SLUG
@@ -441,7 +437,6 @@ deploy-review:
 stop-review:
   stage: deploy
   script:
-    - echo "Nettoyage de la review app"
     - ./cleanup-review.sh $CI_COMMIT_REF_SLUG
   environment:
     name: review/$CI_COMMIT_REF_SLUG
@@ -451,228 +446,18 @@ stop-review:
     - merge_requests
 ```
 
-##### Tiers d'environnements
+**Tiers d'environnements** : production, staging, testing, development (assignés automatiquement selon le nom)
 
-GitLab assigne automatiquement des tiers selon les noms, ou vous pouvez les spécifier explicitement :
+**Variables scopées** : Limitez les secrets à des environnements spécifiques (Settings > CI/CD > Variables > Environment scope)
 
-| Tier | Exemples de noms | Utilisation |
-|------|------------------|-------------|
-| **production** | production, live, prod | Production en service |
-| **staging** | staging, stage, preprod | Pré-production, validation finale |
-| **testing** | test, qa, testing | Tests automatisés ou manuels |
-| **development** | dev, develop, review/* | Développement, review apps |
-| **other** | Noms personnalisés | Cas spécifiques |
+##### Visualisation dans GitLab
 
-Spécifier explicitement le tier :
-
-```yaml
-deploy-demo:
-  stage: deploy
-  script:
-    - ./deploy-demo.sh
-  environment:
-    name: demo-client
-    deployment_tier: staging
-    url: https://demo-client.example.com
-```
-
-##### URLs dynamiques
-
-Pour les plateformes qui génèrent des URLs aléatoires (Heroku, Cloud Run, etc.) :
-
-```yaml
-deploy-cloud:
-  stage: deploy
-  script:
-    - echo "Déploiement sur le cloud..."
-    - DEPLOY_URL=$(gcloud run deploy --format='value(status.url)')
-    - echo "DYNAMIC_ENVIRONMENT_URL=$DEPLOY_URL" >> deploy.env
-  artifacts:
-    reports:
-      dotenv: deploy.env
-  environment:
-    name: production
-    url: $DYNAMIC_ENVIRONMENT_URL
-```
-
-Le fichier `deploy.env` est lu par GitLab qui injecte les variables dans l'environnement.
-
-##### Arrêt automatique des environnements
-
-Les environnements peuvent s'arrêter automatiquement :
-
-**1. Après une période de temps**
-
-```yaml
-deploy-review:
-  environment:
-    name: review/$CI_COMMIT_REF_SLUG
-    url: https://$CI_COMMIT_REF_SLUG.review.example.com
-    on_stop: stop-review
-    auto_stop_in: 3 days  # Accepte: "1 hour", "2 days 3 hours", etc.
-
-stop-review:
-  script:
-    - ./cleanup.sh $CI_COMMIT_REF_SLUG
-  environment:
-    name: review/$CI_COMMIT_REF_SLUG
-    action: stop
-  when: manual
-```
-
-**2. À la suppression ou merge de la branche**
-
-GitLab arrête automatiquement les environnements dynamiques quand :
-- La branche est supprimée
-- La merge request est fusionnée
-
-##### Protection des environnements
-
-Les environnements peuvent être protégés pour contrôler qui peut déployer :
-
-**Configuration** (dans Settings > CI/CD > Protected Environments) :
-- Seuls certains rôles peuvent déployer (Maintainer, specific users)
-- Nécessite une approbation avant déploiement
-- Restreint l'accès aux variables sensibles
-
-```yaml
-deploy-production:
-  stage: deploy
-  script:
-    - ./deploy-prod.sh
-  environment:
-    name: production
-    url: https://app.example.com
-  when: manual  # Déploiement manuel pour plus de contrôle
-  only:
-    - main
-```
-
-##### Variables scopées aux environnements
-
-Les variables peuvent être limitées à des environnements spécifiques (Settings > CI/CD > Variables) :
-
-```
-Nom: DATABASE_PASSWORD
-Valeur: prod_secret_password
-Environment scope: production
-```
-
-Cela empêche l'accès à ces variables depuis d'autres environnements, renforçant la sécurité.
-
-##### Exemple complet : Workflow avec environnements
-
-```yaml
-stages:
-  - build
-  - test
-  - review
-  - staging
-  - production
-
-# Build de l'application
-build:
-  stage: build
-  script:
-    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
-    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-
-# Tests
-test:
-  stage: test
-  script:
-    - npm run test
-
-# Review apps pour chaque MR
-deploy-review:
-  stage: review
-  script:
-    - kubectl create namespace review-$CI_COMMIT_REF_SLUG || true
-    - helm upgrade --install review-$CI_COMMIT_REF_SLUG ./chart
-        --set image.tag=$CI_COMMIT_SHA
-        --set ingress.host=review-$CI_COMMIT_REF_SLUG.example.com
-  environment:
-    name: review/$CI_COMMIT_REF_SLUG
-    url: https://review-$CI_COMMIT_REF_SLUG.example.com
-    on_stop: stop-review
-    auto_stop_in: 7 days
-  only:
-    - merge_requests
-
-stop-review:
-  stage: review
-  script:
-    - helm uninstall review-$CI_COMMIT_REF_SLUG
-    - kubectl delete namespace review-$CI_COMMIT_REF_SLUG
-  environment:
-    name: review/$CI_COMMIT_REF_SLUG
-    action: stop
-  when: manual
-  only:
-    - merge_requests
-
-# Staging : déploiement automatique depuis develop
-deploy-staging:
-  stage: staging
-  script:
-    - helm upgrade --install staging ./chart
-        --set image.tag=$CI_COMMIT_SHA
-        --set ingress.host=staging.example.com
-  environment:
-    name: staging
-    url: https://staging.example.com
-    deployment_tier: staging
-  only:
-    - develop
-
-# Production : déploiement manuel depuis main
-deploy-production:
-  stage: production
-  script:
-    - helm upgrade --install production ./chart
-        --set image.tag=$CI_COMMIT_SHA
-        --set ingress.host=app.example.com
-  environment:
-    name: production
-    url: https://app.example.com
-    deployment_tier: production
-  when: manual  # Nécessite validation manuelle
-  only:
-    - main
-```
-
-##### Visualisation et gestion
-
-Dans l'interface GitLab :
-
-1. **Deployments > Environments** :
-   - Liste de tous les environnements
-   - Statut actuel de chaque environnement
-   - Historique des déploiements
-   - Possibilité de rollback en un clic
-
-2. **Pour chaque environnement** :
-   - URL cliquable vers l'application déployée
-   - Commit et tag associés
-   - Date et auteur du déploiement
-   - Logs du pipeline de déploiement
-   - Actions disponibles (redéployer, rollback, stop)
-
-3. **Dans les Merge Requests** :
-   - Badge indiquant les environnements où la MR est déployée
-   - Lien direct vers les review apps
-   - Statut des déploiements automatiques
-
-##### Bonnes pratiques environnements
-
-1. **Nommer clairement** : Utilisez des noms explicites (production, staging, review/*)
-2. **Définir des URLs** : Toujours fournir une URL pour accéder facilement
-3. **Protéger la production** : Activer la protection et les approbations
-4. **Utiliser auto_stop_in** : Nettoyer automatiquement les review apps
-5. **Scoper les variables** : Limiter les secrets aux environnements nécessaires
-6. **Tiers explicites** : Spécifier `deployment_tier` pour une catégorisation claire
-7. **Déploiement manuel en prod** : Utiliser `when: manual` pour validation humaine
-8. **Review apps systématiques** : Créer une review app pour chaque MR
+L'interface **Deployments > Environments** affiche :
+- Liste et statut de tous les environnements
+- Historique complet des déploiements
+- Rollback en un clic vers une version antérieure
+- URLs cliquables vers les applications déployées
+- Badge dans les Merge Requests montrant où le code est déployé
 
 #### Ressources officielles
 
