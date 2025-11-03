@@ -1,49 +1,29 @@
-output "groups" {
-  description = "Groupes GitLab créés"
-  value = {
-    for key, group in gitlab_group.groups :
-    key => {
-      id               = group.id
-      name             = group.name
-      path             = group.path
-      full_path        = group.full_path
-      web_url          = group.web_url
-      visibility_level = group.visibility_level
-    }
-  }
-}
-
 output "users" {
-  description = "Utilisateurs GitLab créés"
+  description = "Utilisateurs GitLab créés avec leurs informations"
   value = {
-    for key, user in gitlab_user.users :
-    key => {
+    for key, user in gitlab_user.lab_users : key => {
       id       = user.id
       username = user.username
       email    = user.email
-      is_admin = user.is_admin
-    }
-  }
-  sensitive = true
-}
-
-output "group_memberships" {
-  description = "Associations utilisateurs-groupes"
-  value = {
-    for key, membership in gitlab_group_membership.memberships :
-    key => {
-      group_id     = membership.group_id
-      user_id      = membership.user_id
-      access_level = membership.access_level
+      name     = user.name
     }
   }
 }
 
-output "demo_projects" {
-  description = "Projets de démonstration créés"
+output "user_count" {
+  description = "Nombre d'utilisateurs créés"
+  value       = length(gitlab_user.lab_users)
+}
+
+output "ssh_keys_added" {
+  description = "Nombre de clés SSH ajoutées"
+  value       = length(gitlab_user_sshkey.lab_user_keys)
+}
+
+output "projects" {
+  description = "Projets gitlab-tp créés pour chaque utilisateur"
   value = {
-    for key, project in gitlab_project.demo_projects :
-    key => {
+    for key, project in gitlab_project.user_lab_project : key => {
       id       = project.id
       name     = project.name
       web_url  = project.web_url
@@ -51,4 +31,9 @@ output "demo_projects" {
       http_url = project.http_url_to_repo
     }
   }
+}
+
+output "projects_count" {
+  description = "Nombre de projets créés"
+  value       = length(gitlab_project.user_lab_project)
 }

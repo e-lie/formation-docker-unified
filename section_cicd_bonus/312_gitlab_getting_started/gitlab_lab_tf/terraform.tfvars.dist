@@ -1,0 +1,175 @@
+# ============================================================================
+# Configuration Hetzner Cloud
+# ============================================================================
+
+# Token API Hetzner Cloud (obligatoire)
+# Générez-le sur : https://console.hetzner.cloud/
+hcloud_token = "votre_token_hetzner_cloud_ici"
+
+# Noms des clés SSH déjà configurées dans Hetzner Cloud
+# Utilisez : curl -H "Authorization: Bearer VOTRE_TOKEN" https://api.hetzner.cloud/v1/ssh_keys
+hcloud_ssh_keys = ["nom-de-votre-cle-ssh"]
+
+# ============================================================================
+# Configuration du Serveur
+# ============================================================================
+
+# Préfixe pour les noms des ressources (permet de déployer plusieurs environnements)
+prefix = "lab"
+
+# Nom d'utilisateur à créer sur le serveur (sera ajouté au groupe docker et sudo)
+username = "gitlab-admin"
+
+# Type de serveur Hetzner Cloud
+# Recommandé pour GitLab : cpx31 (4 vCPU, 8 GB RAM, 160 GB SSD, ~20€/mois)
+# Minimum : cpx21 (3 vCPU, 4 GB RAM, 80 GB SSD, ~10€/mois) pour des petits labs
+server_type = "cpx31"
+
+# ============================================================================
+# Configuration SSH (optionnel)
+# ============================================================================
+
+# Utilisateur SSH pour les connexions de provisionnement
+# Laisser "root" par défaut (Hetzner crée automatiquement cet utilisateur)
+ssh_user = "root"
+
+# Clé privée SSH (optionnel)
+# Laisser vide pour utiliser l'agent SSH (recommandé)
+# ssh_private_key = ""
+
+# ============================================================================
+# Configuration DNS DigitalOcean (Optionnel)
+# ============================================================================
+
+# Token API DigitalOcean pour la gestion DNS automatique
+# Si vous fournissez ce token et que gitlab_external_url contient un domaine,
+# le module créera automatiquement les enregistrements A et AAAA
+# Générez-le sur : https://cloud.digitalocean.com/account/api/tokens
+digitalocean_token = "votre_token_digitalocean_ici"
+
+# TTL des enregistrements DNS (en secondes)
+# dns_ttl = 300
+
+# ============================================================================
+# Configuration GitLab (Phase 1)
+# ============================================================================
+
+# Nom d'hôte pour GitLab (utilisé dans le conteneur)
+gitlab_hostname = "gitlab"
+
+# URL externe - sera construite automatiquement avec l'IP du serveur
+# Utilisez https:// pour activer automatiquement Let's Encrypt
+# Exemple: "https://gitlab.dopl.uk" ou "http://gitlab.dopl.uk"
+gitlab_external_url = "https://gitlab.dopl.uk"
+
+# Activer HTTPS avec Let's Encrypt (détection automatique si URL commence par https://)
+# enable_https = true
+
+# Email pour Let's Encrypt (notifications d'expiration de certificat)
+# letsencrypt_email = "cto@dopl.uk"
+
+# Lancer automatiquement GitLab lors du terraform apply
+# Si true : GitLab démarre automatiquement (prend 10-15 min)
+# Si false : Vous devrez lancer manuellement ./install-gitlab.sh sur le serveur
+# auto_install_gitlab = true
+
+# Mot de passe root pour GitLab
+# Changez-le par un mot de passe sécurisé !
+gitlab_root_password = "ChangeMe123!SecurePassword"
+
+# ============================================================================
+# Configuration GitLab Provider & Runner (Phase 2 - À configurer APRÈS démarrage)
+# ============================================================================
+
+# Décommentez et configurez ces variables après que GitLab soit démarré (15-20 min) :
+# 1. Attendez que GitLab soit accessible (https://gitlab.dopl.uk)
+# 2. Connectez-vous en tant que root avec le mot de passe ci-dessus
+# 3. Créez un Personal Access Token :
+#    - User Settings > Access Tokens
+#    - Name: "Terraform"
+#    - Scopes: api
+#    - Role: Administrator (utiliser le compte root)
+# 4. Copiez le token et décommentez les lignes ci-dessous
+# 5. Relancez : terraform apply
+
+# URL de votre instance GitLab (sera automatiquement gitlab_external_url si non spécifiée)
+# gitlab_url = "https://gitlab.dopl.uk"
+
+# Personal Access Token GitLab (REQUIS pour auto-registration du runner)
+# gitlab_token = "glpat-xxxxxxxxxxxxxxxxxxxxx"
+
+# ============================================================================
+# Configuration GitLab Runner (Auto-registration)
+# ============================================================================
+
+# Activer l'installation automatique du runner (nécessite gitlab_token)
+# Si true : Le runner sera créé et enregistré automatiquement via l'API
+# Si false : Vous devrez enregistrer le runner manuellement
+# auto_install_runner = true
+
+# Description du runner
+# runner_description = "Docker Runner - Auto-configured"
+
+# Tags du runner (pour cibler des jobs spécifiques)
+# runner_tags = ["docker", "auto", "shared"]
+
+# Type d'executor : "docker" ou "shell"
+# docker : Les jobs s'exécutent dans des conteneurs Docker (recommandé)
+# shell : Les jobs s'exécutent directement sur l'hôte
+# runner_executor = "docker"
+
+# ============================================================================
+# Configuration des Utilisateurs de Lab (Phase 3)
+# ============================================================================
+
+# La configuration par défaut crée 4 utilisateurs (définis dans variables.tf).
+# Vous pouvez personnaliser ou ajouter des utilisateurs en décommentant ci-dessous.
+#
+# Mot de passe : devops101 (pour tous)
+# Clé SSH : id_stagiaire.pub (ajoutée automatiquement à tous)
+# Projet : gitlab-tp (créé automatiquement pour chaque utilisateur)
+#
+# ⚠️ Configuration pour environnement de LAB/FORMATION uniquement !
+# Ne jamais utiliser ces paramètres en production.
+
+# Personnaliser les utilisateurs (optionnel)
+# Décommentez et modifiez pour personnaliser les noms, usernames et emails
+#
+# gitlab_users = {
+#   stagiaire1 = {
+#     name     = "Alice Martin"
+#     username = "alice"
+#     email    = "alice.martin@formation.com"
+#   }
+#   stagiaire2 = {
+#     name     = "Bob Dupont"
+#     username = "bob"
+#     email    = "bob.dupont@formation.com"
+#   }
+#   stagiaire3 = {
+#     name     = "Charlie Rousseau"
+#     username = "charlie"
+#     email    = "charlie.rousseau@formation.com"
+#   }
+#   stagiaire4 = {
+#     name     = "Diana Lefebvre"
+#     username = "diana"
+#     email    = "diana.lefebvre@formation.com"
+#   }
+#   # Ajoutez autant d'utilisateurs que nécessaire
+#   # stagiaire5 = {
+#   #   name     = "Eve Bernard"
+#   #   username = "eve"
+#   #   email    = "eve.bernard@formation.com"
+#   # }
+# }
+
+# Note : Si vous ne décommentez pas gitlab_users, les valeurs par défaut
+# de variables.tf seront utilisées :
+# - stagiaire1-4 / stagiaire{1-4}@lab.local / "Stagiaire {1-4}"
+#
+# Ce qui sera créé pour chaque utilisateur :
+# ✅ Compte utilisateur avec mot de passe devops101
+# ✅ Clé SSH id_stagiaire.pub ajoutée automatiquement
+# ✅ Projet personnel "gitlab-tp" (privé, avec README)
+# ✅ Permissions : issues, merge requests, snippets activés

@@ -106,18 +106,34 @@ variable "gitlab_groups" {
 }
 
 variable "gitlab_users" {
-  description = "Utilisateurs GitLab à créer"
+  description = "Utilisateurs GitLab à créer (nom, username, email personnalisables)"
   type = map(object({
-    name             = string
-    username         = string
-    email            = string
-    password         = string
-    is_admin         = bool
-    projects_limit   = number
-    can_create_group = bool
+    name     = string
+    username = string
+    email    = string
   }))
-  default = {}
-  sensitive = true
+  default = {
+    stagiaire1 = {
+      name     = "Stagiaire 1"
+      username = "stagiaire1"
+      email    = "stagiaire1@lab.local"
+    }
+    stagiaire2 = {
+      name     = "Stagiaire 2"
+      username = "stagiaire2"
+      email    = "stagiaire2@lab.local"
+    }
+    stagiaire3 = {
+      name     = "Stagiaire 3"
+      username = "stagiaire3"
+      email    = "stagiaire3@lab.local"
+    }
+    stagiaire4 = {
+      name     = "Stagiaire 4"
+      username = "stagiaire4"
+      email    = "stagiaire4@lab.local"
+    }
+  }
 }
 
 variable "gitlab_group_memberships" {

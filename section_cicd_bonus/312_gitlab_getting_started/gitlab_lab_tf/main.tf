@@ -113,11 +113,11 @@ provider "digitalocean" {
 module "dns" {
   source = "./modules/dns"
 
-  digitalocean_token   = var.digitalocean_token
-  gitlab_external_url  = var.gitlab_external_url
-  server_ipv4          = module.hcloud_serveur.server_ipv4
-  server_ipv6          = module.hcloud_serveur.server_ipv6
-  dns_ttl              = var.dns_ttl
+  digitalocean_token  = var.digitalocean_token
+  gitlab_external_url = var.gitlab_external_url
+  server_ipv4         = module.hcloud_serveur.server_ipv4
+  server_ipv6         = module.hcloud_serveur.server_ipv6
+  dns_ttl             = var.dns_ttl
 
   depends_on = [module.hcloud_serveur]
 }
@@ -139,11 +139,11 @@ module "dns" {
 module "gitlab_runner" {
   source = "./modules/gitlab_runner"
 
-  gitlab_url          = var.gitlab_url != "" ? var.gitlab_url : var.gitlab_external_url
-  gitlab_token        = var.gitlab_token
-  server_ip           = module.hcloud_serveur.server_ipv4
-  ssh_user            = var.ssh_user
-  ssh_private_key     = var.ssh_private_key
+  gitlab_url      = var.gitlab_url != "" ? var.gitlab_url : var.gitlab_external_url
+  gitlab_token    = var.gitlab_token
+  server_ip       = module.hcloud_serveur.server_ipv4
+  ssh_user        = var.ssh_user
+  ssh_private_key = var.ssh_private_key
 
   runner_description  = var.runner_description
   runner_tags         = var.runner_tags
@@ -164,13 +164,10 @@ module "gitlab_runner" {
 # ==============================================================================
 
 # Décommentez le bloc ci-dessous après l'installation de GitLab
-/*
 module "gitlab_provision" {
   source = "./modules/gitlab_provision"
 
-  groups             = var.gitlab_groups
-  users              = var.gitlab_users
-  group_memberships  = var.gitlab_group_memberships
-  demo_projects      = var.gitlab_demo_projects
+  users          = var.gitlab_users
+  user_password  = "devops101"
+  ssh_public_key = file("${path.module}/id_stagiaire.pub")
 }
-*/

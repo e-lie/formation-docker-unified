@@ -15,14 +15,14 @@ terraform {
 resource "gitlab_user_runner" "main" {
   count = var.gitlab_token != "" ? 1 : 0
 
-  runner_type      = "instance_type"
-  description      = var.runner_description
-  tag_list         = var.runner_tags
-  untagged         = var.run_untagged
-  locked           = var.locked
-  access_level     = var.access_level
-  maximum_timeout  = var.maximum_timeout
-  paused           = false
+  runner_type     = "instance_type"
+  description     = var.runner_description
+  tag_list        = var.runner_tags
+  untagged        = var.run_untagged
+  locked          = var.locked
+  access_level    = var.access_level
+  maximum_timeout = var.maximum_timeout
+  paused          = false
 }
 
 # ============================================================================
@@ -33,11 +33,11 @@ resource "null_resource" "install_runner" {
   count = var.gitlab_token != "" && var.auto_install_runner ? 1 : 0
 
   triggers = {
-    runner_id           = gitlab_user_runner.main[0].id
-    runner_token        = gitlab_user_runner.main[0].token
-    gitlab_url          = var.gitlab_url
-    docker_executor     = var.docker_executor
-    default_image       = var.default_docker_image
+    runner_id       = gitlab_user_runner.main[0].id
+    runner_token    = gitlab_user_runner.main[0].token
+    gitlab_url      = var.gitlab_url
+    docker_executor = var.docker_executor
+    default_image   = var.default_docker_image
   }
 
   connection {
