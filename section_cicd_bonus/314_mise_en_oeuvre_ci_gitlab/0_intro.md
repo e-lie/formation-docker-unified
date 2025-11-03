@@ -12,7 +12,7 @@ Dans le dépot de code unifié : `section_cicd_bonus/313_mise_en_oeuvre_ci_gitla
 
 - https://gitlab.dopl.uk
 
-- login: votreprenom mdp : P}K1%,neA9v]6H1D
+- login: votreprenom mdp : xK9#mZ2$pL7@qR5!
 
 ### Créer un projet Gitlab
 
