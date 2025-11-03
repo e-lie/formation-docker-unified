@@ -125,7 +125,7 @@ gitlab_root_password = "ChangeMe123!SecurePassword"
 # La configuration par défaut crée 4 utilisateurs (définis dans variables.tf).
 # Vous pouvez personnaliser ou ajouter des utilisateurs en décommentant ci-dessous.
 #
-# Mot de passe : devops101 (pour tous)
+# Mot de passe : P}K1%,neA9v]6H1D (pour tous)
 # Clé SSH : id_stagiaire.pub (ajoutée automatiquement à tous)
 # Projet : gitlab-tp (créé automatiquement pour chaque utilisateur)
 #
@@ -169,7 +169,7 @@ gitlab_root_password = "ChangeMe123!SecurePassword"
 # - stagiaire1-4 / stagiaire{1-4}@lab.local / "Stagiaire {1-4}"
 #
 # Ce qui sera créé pour chaque utilisateur :
-# ✅ Compte utilisateur avec mot de passe devops101
+# ✅ Compte utilisateur avec mot de passe P}K1%,neA9v]6H1D
 # ✅ Clé SSH id_stagiaire.pub ajoutée automatiquement
 # ✅ Projet personnel "gitlab-tp" (privé, avec README)
 # ✅ Permissions : issues, merge requests, snippets activés

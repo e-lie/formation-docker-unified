@@ -8,6 +8,12 @@ weight: 38
 
 Dans le dépot de code unifié : `section_cicd_bonus/313_mise_en_oeuvre_ci_gitlab_base`
 
+### Se connecter au gitlab de lab
+
+- https://gitlab.dopl.uk
+
+- login: votreprenom mdp : P}K1%,neA9v]6H1D
+
 ### Créer un projet Gitlab
 
 - Créez un compte sur Gitlab (gratuit)

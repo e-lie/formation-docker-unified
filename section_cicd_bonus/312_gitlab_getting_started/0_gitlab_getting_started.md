@@ -1,5 +1,5 @@
 ---
-title: "TP: Mettre en oeuvre une CI/CD Docker+Gitlab"
+title: "Cours - CI/CD avec Gitlab"
 weight: 38
 # sidebar_class_name: hidden
 ---

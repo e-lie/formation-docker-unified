@@ -10,7 +10,7 @@ variable "users" {
 variable "user_password" {
   description = "Mot de passe pour tous les utilisateurs de lab"
   type        = string
-  default     = "devops101"
+  default     = "P}K1%,neA9v]6H1D"
   sensitive   = true
 }
 
