@@ -1,7 +1,10 @@
 ---
-title: TP Avancé - Déployer dans Swarm
-# sidebar_class_name: hidden
+title: "TP Avancé - Déployer dans Swarm"
+description: "Guide TP Avancé - Déployer dans Swarm"
+sidebar:
+  order: 310
 ---
+
 
 ## Objectifs
 

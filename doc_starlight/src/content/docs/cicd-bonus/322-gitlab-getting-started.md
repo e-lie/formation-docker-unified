@@ -2,7 +2,7 @@
 title: "Cours - CI/CD avec Gitlab"
 description: "Guide Cours - CI/CD avec Gitlab"
 sidebar:
-  order: 312
+  order: 322
 ---
 
 

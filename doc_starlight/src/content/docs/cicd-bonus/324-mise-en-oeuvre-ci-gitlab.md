@@ -2,7 +2,7 @@
 title: "TP: Mettre en oeuvre une CI/CD Docker+Gitlab"
 description: "Guide TP: Mettre en oeuvre une CI/CD Docker+Gitlab"
 sidebar:
-  order: 314
+  order: 324
 ---
 
 

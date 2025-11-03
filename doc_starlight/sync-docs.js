@@ -49,6 +49,11 @@ const SECTIONS = [
     name: 'section_cicd_bonus',
     targetDir: 'cicd-bonus',
     label: 'CI/CD & Bonus'
+  },
+  {
+    name: 'section_kubernetes',
+    targetDir: 'kubernetes',
+    label: 'Kubernetes'
   }
 ];
 

@@ -40,6 +40,10 @@ export default defineConfig({
 					label: 'CI/CD & Bonus',
 					autogenerate: { directory: 'cicd-bonus' },
 				},
+				{
+					label: 'Kubernetes',
+					autogenerate: { directory: 'kubernetes' },
+				},
 			],
 			customCss: [
 				// Chemin vers votre CSS personnalisé si nécessaire
