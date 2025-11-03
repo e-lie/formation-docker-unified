@@ -1,6 +1,6 @@
 ---
-title: "TP: Mettre en oeuvre une CI/CD Docker+Gitlab"
-description: "Guide TP: Mettre en oeuvre une CI/CD Docker+Gitlab"
+title: "Cours - CI/CD avec Gitlab"
+description: "Guide Cours - CI/CD avec Gitlab"
 sidebar:
   order: 312
 ---

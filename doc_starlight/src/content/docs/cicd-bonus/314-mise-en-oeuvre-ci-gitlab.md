@@ -10,11 +10,18 @@ sidebar:
 
 Dans le dépot de code unifié : `section_cicd_bonus/313_mise_en_oeuvre_ci_gitlab_base`
 
+Ouvrez le avec VSCode
+
+### Se connecter au gitlab de lab
+
+- https://gitlab.dopl.uk
+
+- login: votreprenom mdp : xK9#mZ2$pL7@qR5!
+
 ### Créer un projet Gitlab
 
-- Créez un compte sur Gitlab (gratuit)
 - créer une clé ssh avec `ssh-keygen` (faire juste entrer a toute les questions suffit ici => id_rsa sans passphrase)
-- Ajoutez la clé à votre compte (vous pourrez l'enlever à la fin du TP)
+- Ajoutez la clé à votre compte
 - Créez un projet privé `monsterstack_app` par exemple
 - Ajoutez un remote git au dépot git avec `git remote add gitlab <ssh_url_du_projet>`
 - Poussez le projet avec `git push gitlab` et vérifiez sur la page du projet que votre code est bien poussé.
@@ -53,7 +60,7 @@ Nous allons maintenant créer un job très simple sur le modèle:
 Ce Job doit vérifier simplement qu'il n'y a pas d'erreurs grossières dans le code de notre logiciel en utilisant la librairie `pyflakes`:
 
 - Ajoutez une commande pour installer pyflakes avec `pip install pyflakes`
-- Ajoutez une commande pour lancer pyflakes avec `pyflakes app/*.py`
+- Ajoutez une commande pour lancer pyflakes avec `pyflakes app/src/*.py` (notez que le code Python est dans `app/src/`)
 
 - Créez un commit et poussez votre code `git push gitlab` pour vérifier que le pipeline fonctionne (s'il échoue vous devriez reçevoir un mail sur l'adresse mail de votre compte)
 - Allez voir dans l'interface gitlab section `Build > pipelines` comment s'est déroulé le pipeline
@@ -189,20 +196,49 @@ docker-deliver-staging:
 - Qu'est-ce qui déclenche la construction de cette image ?
 - Que fait cette étape précisément ?
 
+**Note:** Pour tester le stage `deliver-staging`, vous devrez créer une branche `staging` avec `git checkout -b staging` et pousser cette branche vers GitLab avec `git push gitlab staging`.
+
+## Correction
+
+Le fichier `.gitlab-ci.yml` complet de correction est disponible dans ce dossier (`section_cicd_bonus/314_mise_en_oeuvre_ci_gitlab/.gitlab-ci.yml`).
+
+### Points clés de la correction :
+
+**1. Stage check** : Deux jobs en parallèle pour une validation rapide
+- `linting` : Vérification syntaxique avec pyflakes sur `app/src/*.py`
+- `unit-testing` : Exécution des tests unitaires dans un environnement virtuel Python
+
+**2. Stage build-integration** :
+- `integration-testing` : Tests avec services (redis et imagebackend) pour valider l'intégration des composants
+- `docker-build` : Construction et push de l'image Docker avec un tag basé sur le commit (`$CI_COMMIT_REF_SLUG`)
+
+**3. Stage deliver-staging** :
+- `docker-deliver-staging` : Ne s'exécute que sur la branche `staging`
+- Pull l'image construite, la re-tag en `staging` et la pousse dans le registry GitLab
+
+### Variables GitLab CI/CD utilisées :
+
+- `$CI_REGISTRY_IMAGE` : URL complète de l'image dans le registry GitLab du projet
+- `$CI_COMMIT_REF_SLUG` : Nom de la branche/tag nettoyé pour être utilisé dans un tag Docker
+- `$CI_REGISTRY_USER` et `$CI_REGISTRY_PASSWORD` : Credentials automatiques pour s'authentifier au registry
+- `$CI_REGISTRY` : URL du registry GitLab
+
+### Particularités observables :
+
+- Les jobs `linting` et `unit-testing` s'exécutent **en parallèle** car ils font partie du même stage
+- Le job `integration-testing` utilise la section `services` pour créer un réseau de conteneurs similaire à docker-compose
+- Les alias (`imagebackend`, `redis`) permettent aux conteneurs de se découvrir via DNS
+- Les règles (`rules`) conditionnent l'exécution des jobs docker selon la branche ou la présence d'un Dockerfile
+
 ## Conclusion
 
-Ce TP présente un exemple de pipeline Gitlab et Docker illustrant de façon simplifié un workflow de continous integration et delivery.
+Ce TP présente un exemple de pipeline GitLab et Docker illustrant de façon simplifiée un workflow de continuous integration et delivery.
 
 Pour la suite on devrait utiliser par exemple Kubernetes pour déployer l'application en la poussant dans un cluster ou en mode GitOps en publiant
 
-## Références
 
-<!-- ### Doc Gitlab
-
-- ... -->
 
 #### Tutos exemple:
 
 - https://mohammed-abouzahr.medium.com/integration-test-starter-with-ci-5037410817ee
 - https://spin.atomicobject.com/2021/06/07/integration-testing-gitlab/
-- 

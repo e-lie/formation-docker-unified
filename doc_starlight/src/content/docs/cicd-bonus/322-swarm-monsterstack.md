@@ -14,7 +14,7 @@ Créez le ficher `env` puis sourcez le (la passphrase ssh est la même que le md
 
 ```sh
 ssh-add ~/.ssh/id_stagiaire
-export DOCKER_HOST="ssh://root@49.13.22.7"
+export DOCKER_HOST="ssh://root@<ip_noeud"
 ```
 
 Déployez la stack Swarm d'exemple suivante en suivant le readme: https://github.com/dockersamples/example-voting-app
