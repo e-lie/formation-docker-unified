@@ -22,7 +22,7 @@ On se retrouve avec des images de 1GB basé par exemple sur `python` "full" pour
 Par ailleurs, il existe une limite du nombre de couches maximum par image (42 layers). Souvent on enchaînait les commandes en une seule pour économiser des couches (souvent, les commandes `RUN` et `ADD`), en y perdant en lisibilité.
   
 
-**Maintenant on peut utiliser les multistage builds.**
+**On peut utiliser les multistage builds.**
 
 Avec les multi-stage builds, on peut utiliser plusieurs instructions `FROM` dans un Dockerfile. Chaque instruction `FROM` utilise une base différente.
 On sélectionne ensuite les fichiers intéressants (des fichiers compilés par exemple) en les copiant d'un stage à un autre.
@@ -95,7 +95,7 @@ Deux exemples pour vous aider:
 - https://alphasec.io/dockerize-a-node-js-app-using-a-distroless-image/
 - https://medium.com/@luke_perry_dev/dockerizing-with-distroless-f3b84ae10f3a
 
- Une correction possible dans la branche correction : `git clone https://github.com/Uptime-Formation/docker-example-nodejs-multistage-distroless/-b correction`
+Une correction possible dans la branche correction : `git clone https://github.com/Uptime-Formation/docker-example-nodejs-multistage-distroless/-b correction`
 
 L'image résultante fait tout de même un peu plus de 170Mo, mais elle ne contient ni shell ni utilitaires unix ce qui réduit notamment la surface d'attaque et les signalements aux scans de sécurité.
 

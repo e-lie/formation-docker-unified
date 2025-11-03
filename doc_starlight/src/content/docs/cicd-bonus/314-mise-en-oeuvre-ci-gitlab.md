@@ -62,7 +62,7 @@ Autre problème, installer et maintenir les serveurs dédiés peut représenter 
 
 ### Présentation de Gitlab CI/CD
 
-- https://docs.gitlab.com/ee/topics/build_your_application.html
+- https://docs.gitlab.com/topics/build_your_application/
 
 ## TP - Mise en oeuvre d'une CI/CD avec Gitlab et Docker
 

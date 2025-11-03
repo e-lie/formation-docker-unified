@@ -1,16 +1,11 @@
 ---
 title: "TP Dockerfile TP : conteneuriser une application flask"
-description: "Guide TP Dockerfile TP : conteneuriser une application flask"
-sidebar:
-  order: 111
 ---
 
 
-- Récupérez d’abord une application Flask exemple en la clonant :
+Si vous ne l'avez pas encore fait, récupérez le dépot unifié de la formation : `git clone https://github.com/e-lie/formation-docker-unified.git`
 
-```shell
-git clone https://github.com/uptime-formation/microblog/ tp_dockerfile
-```
+Vous pouvez ensuite ouvrir le dossier `section_images_dockerfiles/113_tp_dockerfile_flask_app_base/python_app`
 
 Déployer une application Flask manuellement à chaque fois est relativement pénible. Pour que les dépendances de deux projets Python ne se perturbent pas, il faut normalement utiliser un environnement virtuel `virtualenv` pour séparer ces deux apps.
 
@@ -40,7 +35,6 @@ RUN apt-get install -y python3-pip
 Cette étape, qui aurait pu être nécessaire dans un autre contexte : en partant d'un linux vide comme `ubuntu` est ici inutile car l'image officielle python contient déjà ces éléments.
 
 :::
-
 
 - Pour installer les dépendances python et configurer la variable d'environnement Flask ajoutez:
 
@@ -121,10 +115,8 @@ USER microblog
 CMD ["./boot.sh"]
 ```
 
+Vous pouvez également retrouver la correction dans le dossier `section_images_dockerfiles/115_tp_dockerfile_pour_flask_app` du dépot unifié (énoncé et code de TP) de la formation
+
 </p>
 </details>
 
-
-<!-- ## Amélioration : Une image plus simple
-
-A l'aide de l'image `python:3.9-alpine` et en remplaçant les instructions nécessaires (pas besoin d'installer `python3-pip` car ce programme est désormais inclus dans l'image de base), repackagez l'app microblog en une image taggée `microblog:slim` ou `microblog:light`. Comparez la taille entre les deux images ainsi construites. -->

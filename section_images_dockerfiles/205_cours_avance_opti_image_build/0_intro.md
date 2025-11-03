@@ -19,7 +19,7 @@ Pour s'y retrouver on peut se référer à ce comparatif assez complet (bien que
 
 Autre comparaison pour faire des images minimales: https://baykara.medium.com/alpine-vs-distroless-vs-busybox-e14573ba8724
 
-Pour entrer dans les détails d'une image on peut installer et utiliser https://github.com/wagoodman/dive. C'est souvent nécessaire quand on optimiser au maximum son image d'avoir conscience de tous les fichiers
+Pour entrer dans les détails d'une image on peut installer et utiliser https://github.com/wagoodman/dive. C'est souvent nécessaire quand on veut optimiser au maximum son image d'avoir conscience de tous les fichiers
 
 ## Cache de Build
 
@@ -59,26 +59,6 @@ Est le (nouveau) builder par défaut de Docker depuis quelques années.
 Buildx est un plugin Docker assez récent qui permet d'automatiser le build d'images et de builder pour plusieurs architectures.
 
 Tutoriel d'exemple : https://www.docker.com/blog/how-to-rapidly-build-multi-architecture-images-with-buildx/
-
-## Kaniko:
-
-Outil de Google pour builder efficacement sans Docker à partir d'un Dockerfile, notamment dans un cluster Kubernetes. Tourné vers la CI/CD
-Permet de pousser le cache des build vers un serveur pour ne pas le perdre quand le build est réalisé dans un agent on demand temporaire (Jenkins in K8s par exemple)
-
-Le gros avantage est de pouvoir builder avec n'importe quelle runtime de conteneur (c'est un peu risqué d'être dépendant de Docker pour le futur ?)
-
-- L'inconvénient c'est qu'il ne se comporte pas forcément exactement comme Docker donc il faut un peu travailler pour builder des choses.
-- Build seulement pour l'architecture x86_64
-
-- https://github.com/GoogleContainerTools/Kaniko : Plusieurs getting started dans le README
-
-- Présentation plus détaillée : https://cloud.google.com/blog/products/containers-kubernetes/introducing-kaniko-build-container-images-in-kubernetes-and-google-container-builder-even-without-root-access?hl=en
-
-- Exemple de pipeline Gitlab Kaniko: https://gitlab.com/guided-explorations/containers/kaniko-docker-build
-
-- Tutoriel d'intro: https://www.baeldung.com/ops/kaniko
-
-- Gestion du cache avec Kaniko : https://cloud.google.com/build/docs/optimize-builds/kaniko-cache
 
 ## Buildah
 
