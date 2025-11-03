@@ -50,7 +50,6 @@ Autre problème, installer et maintenir les serveurs dédiés peut représenter 
 - C'est l'approche de Gitlab qui fournit du pipeline as a service par défault basé sur un cloud de conteneur.
 - Jenkins installé avec le plugin Docker ou Kubernetes permet également d'utiliser des conteneurs pour les différentes étapes (stages) d'un pipeline.
 
-
 ### Présentation de Gitlab CI/CD
 
 GitLab CI/CD est une plateforme intégrée d'intégration et de déploiement continu qui permet d'automatiser la construction, le test et le déploiement de vos applications directement depuis votre dépôt GitLab.

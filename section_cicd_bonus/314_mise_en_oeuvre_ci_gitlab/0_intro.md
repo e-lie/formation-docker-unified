@@ -6,7 +6,7 @@ weight: 38
 
 ### Code de base
 
-- `git clone -b tp_monsterstack_gitlab_docker_base https://github.com/Uptime-Formation/corrections_tp.git`
+Dans le dépot de code unifié : `section_cicd_bonus/313_mise_en_oeuvre_ci_gitlab_base`
 
 ### Créer un projet Gitlab
 
