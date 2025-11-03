@@ -1,0 +1,96 @@
+# Pipeline CI/CD GitLab - MonsterStack App
+# Ce pipeline comprend 3 stages : check, build-integration, deliver-staging
+
+stages:
+  - check
+  - build-integration
+  - deliver-staging
+
+# ============================================================================
+# STAGE: check
+# Vérification rapide de la qualité du code
+# ============================================================================
+
+linting:
+  stage: check
+  image: python:3.10-slim
+  script:
+    - pip install pyflakes
+    - pyflakes app/src/*.py
+
+unit-testing:
+  stage: check
+  image: python:3.10-slim
+  script:
+    - cd app
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install -r requirements.dev.txt
+    - python -m unittest tests/unit.py
+
+# ============================================================================
+# STAGE: build-integration
+# Tests d'intégration et construction de l'image Docker
+# ============================================================================
+
+integration-testing:
+  stage: build-integration
+  image: python:3.10-slim
+  services:
+    - name: amouat/dnmonster:1.0
+      alias: imagebackend
+    - name: redis:latest
+      alias: redis
+  script:
+    - cd app
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install -r requirements.dev.txt
+    - python -m unittest tests/integration.py
+
+docker-build:
+  stage: build-integration
+  # Use the official docker image.
+  image: docker:cli
+  services:
+    - docker:dind
+  variables:
+    DOCKER_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build --pull -t "$DOCKER_IMAGE_NAME" .
+    # All branches are tagged with $DOCKER_IMAGE_NAME (defaults to commit ref slug)
+    - docker push "$DOCKER_IMAGE_NAME"
+  # Run this job in a branch where a Dockerfile exists
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      exists:
+        - Dockerfile
+
+# ============================================================================
+# STAGE: deliver-staging
+# Publication de l'image en staging
+# ============================================================================
+
+docker-deliver-staging:
+  stage: deliver-staging
+  # Use the official docker image.
+  image: docker:cli
+  services:
+    - docker:dind
+  variables:
+    DOCKER_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    # Staging branch generates a `staging` image
+    - docker pull "$DOCKER_IMAGE_NAME"
+    - docker tag "$DOCKER_IMAGE_NAME" "$CI_REGISTRY_IMAGE:staging"
+    - docker push "$CI_REGISTRY_IMAGE:staging"
+  # Run this job in a branch where a Dockerfile exists
+  rules:
+    - if: $CI_COMMIT_BRANCH == "staging"
+    - if: $CI_COMMIT_BRANCH
+      exists:
+        - Dockerfile
