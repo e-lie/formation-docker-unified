@@ -8,6 +8,8 @@ weight: 38
 
 Dans le dépot de code unifié : `section_cicd_bonus/313_mise_en_oeuvre_ci_gitlab_base`
 
+Ouvrez le avec VSCode
+
 ### Se connecter au gitlab de lab
 
 - https://gitlab.dopl.uk
@@ -16,9 +18,8 @@ Dans le dépot de code unifié : `section_cicd_bonus/313_mise_en_oeuvre_ci_gitla
 
 ### Créer un projet Gitlab
 
-- Créez un compte sur Gitlab (gratuit)
 - créer une clé ssh avec `ssh-keygen` (faire juste entrer a toute les questions suffit ici => id_rsa sans passphrase)
-- Ajoutez la clé à votre compte (vous pourrez l'enlever à la fin du TP)
+- Ajoutez la clé à votre compte
 - Créez un projet privé `monsterstack_app` par exemple
 - Ajoutez un remote git au dépot git avec `git remote add gitlab <ssh_url_du_projet>`
 - Poussez le projet avec `git push gitlab` et vérifiez sur la page du projet que votre code est bien poussé.

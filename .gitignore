@@ -64,8 +64,6 @@ madlibs
 secrets.env
 
 
-*.dist
-
 
 
 public_ips.txt

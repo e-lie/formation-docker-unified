@@ -167,7 +167,5 @@ module "gitlab_runner" {
 module "gitlab_provision" {
   source = "./modules/gitlab_provision"
 
-  users          = var.gitlab_users
-  user_password  = "devops101"
-  ssh_public_key = file("${path.module}/id_stagiaire.pub")
+  users = var.gitlab_users
 }

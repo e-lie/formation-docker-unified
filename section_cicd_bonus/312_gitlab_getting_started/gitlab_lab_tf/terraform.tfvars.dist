@@ -126,8 +126,6 @@ gitlab_root_password = "ChangeMe123!SecurePassword"
 # Vous pouvez personnaliser ou ajouter des utilisateurs en décommentant ci-dessous.
 #
 # Mot de passe : xK9#mZ2$pL7@qR5! (pour tous)
-# Clé SSH : id_stagiaire.pub (ajoutée automatiquement à tous)
-# Projet : gitlab-tp (créé automatiquement pour chaque utilisateur)
 #
 # ⚠️ Configuration pour environnement de LAB/FORMATION uniquement !
 # Ne jamais utiliser ces paramètres en production.
@@ -170,6 +168,5 @@ gitlab_root_password = "ChangeMe123!SecurePassword"
 #
 # Ce qui sera créé pour chaque utilisateur :
 # ✅ Compte utilisateur avec mot de passe xK9#mZ2$pL7@qR5!
-# ✅ Clé SSH id_stagiaire.pub ajoutée automatiquement
-# ✅ Projet personnel "gitlab-tp" (privé, avec README)
-# ✅ Permissions : issues, merge requests, snippets activés
+# ✅ Limite de 100 projets par utilisateur
+# ✅ Permissions pour créer des groupes
