@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  frontend:
+    image: ${CI_REGISTRY_IMAGE}:${TAG:-latest}
+    ports:
+      - "5000:5000"
+    environment:
+      - CONTEXT=PROD
+      - REDIS_DOMAIN=redis
+      - IMAGEBACKEND_DOMAIN=imagebackend
+    networks:
+      - monster_network
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+
+  imagebackend:
+    image: amouat/dnmonster:1.0
+    networks:
+      - monster_network
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+
+  redis:
+    image: redis:latest
+    networks:
+      - monster_network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+
+networks:
+  monster_network:
+    driver: overlay

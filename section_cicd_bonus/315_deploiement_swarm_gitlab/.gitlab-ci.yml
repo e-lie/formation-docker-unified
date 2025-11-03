@@ -1,0 +1,166 @@
+# Pipeline CI/CD GitLab - MonsterStack App avec Déploiement Swarm
+# Ce pipeline comprend 4 stages : check, build-integration, deliver-staging, deploy
+
+stages:
+  - check
+  - build-integration
+  - deliver-staging
+  - deploy
+
+# ============================================================================
+# STAGE: check
+# Vérification rapide de la qualité du code
+# ============================================================================
+
+linting:
+  stage: check
+  image: python:3.10-slim
+  script:
+    - pip install pyflakes
+    - pyflakes app/src/*.py
+
+unit-testing:
+  stage: check
+  image: python:3.10-slim
+  script:
+    - cd app
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install -r requirements.dev.txt
+    - python -m unittest tests/unit.py
+
+# ============================================================================
+# STAGE: build-integration
+# Tests d'intégration et construction de l'image Docker
+# ============================================================================
+
+integration-testing:
+  stage: build-integration
+  image: python:3.10-slim
+  services:
+    - name: amouat/dnmonster:1.0
+      alias: imagebackend
+    - name: redis:latest
+      alias: redis
+  script:
+    - cd app
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install -r requirements.dev.txt
+    - python -m unittest tests/integration.py
+
+docker-build:
+  stage: build-integration
+  # Use the official docker image.
+  image: docker:cli
+  services:
+    - docker:dind
+  variables:
+    DOCKER_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build --pull -t "$DOCKER_IMAGE_NAME" .
+    # All branches are tagged with $DOCKER_IMAGE_NAME (defaults to commit ref slug)
+    - docker push "$DOCKER_IMAGE_NAME"
+    # If this is a tag, also push with the tag name
+    - |
+      if [ -n "$CI_COMMIT_TAG" ]; then
+        docker tag "$DOCKER_IMAGE_NAME" "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
+        docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
+      fi
+  # Run this job in a branch where a Dockerfile exists
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      exists:
+        - Dockerfile
+    - if: $CI_COMMIT_TAG
+      exists:
+        - Dockerfile
+
+# ============================================================================
+# STAGE: deliver-staging
+# Publication de l'image en staging
+# ============================================================================
+
+docker-deliver-staging:
+  stage: deliver-staging
+  # Use the official docker image.
+  image: docker:cli
+  services:
+    - docker:dind
+  variables:
+    DOCKER_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    # Staging branch generates a `staging` image
+    - docker pull "$DOCKER_IMAGE_NAME"
+    - docker tag "$DOCKER_IMAGE_NAME" "$CI_REGISTRY_IMAGE:staging"
+    - docker push "$CI_REGISTRY_IMAGE:staging"
+  # Run this job in a branch where a Dockerfile exists
+  rules:
+    - if: $CI_COMMIT_BRANCH == "staging"
+      exists:
+        - Dockerfile
+
+# ============================================================================
+# STAGE: deploy
+# Déploiement automatique dans Docker Swarm
+# ============================================================================
+
+deploy-swarm:
+  stage: deploy
+  image: docker:cli
+  before_script:
+    # Installer les outils nécessaires
+    - apk add --no-cache openssh-client bash gettext
+    # Configurer SSH
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan -H $SWARM_MANAGER_IP >> ~/.ssh/known_hosts
+  script:
+    # Définir le tag à déployer (tag Git si disponible, sinon nom de branche)
+    - export TAG=${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG}
+    - echo "Deploying image $CI_REGISTRY_IMAGE:$TAG to Swarm cluster"
+
+    # Substituer les variables d'environnement dans le docker-compose
+    - envsubst < docker-compose.swarm.yml > docker-compose.deploy.yml
+    - echo "=== Generated docker-compose.deploy.yml ==="
+    - cat docker-compose.deploy.yml
+
+    # Copier le fichier sur le manager Swarm
+    - scp docker-compose.deploy.yml $SWARM_DEPLOY_USER@$SWARM_MANAGER_IP:/tmp/monsterstack-compose.yml
+
+    # Se connecter au manager et déployer le stack
+    - |
+      ssh $SWARM_DEPLOY_USER@$SWARM_MANAGER_IP << 'EOF'
+        echo "=== Deploying stack to Swarm ==="
+        # Déployer le stack avec docker stack deploy
+        docker stack deploy -c /tmp/monsterstack-compose.yml monsterstack --with-registry-auth
+
+        # Attendre que les services soient à jour
+        echo "=== Waiting for services to be ready ==="
+        sleep 15
+
+        # Afficher le statut des services
+        echo "=== Stack services status ==="
+        docker stack services monsterstack
+
+        echo "=== Service tasks ==="
+        docker stack ps monsterstack --no-trunc
+
+        # Cleanup
+        rm /tmp/monsterstack-compose.yml
+
+        echo "=== Deployment completed ==="
+      EOF
+  environment:
+    name: production
+    url: http://$SWARM_MANAGER_IP:5000
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_TAG
+  # Optionnel : rendre le déploiement manuel
+  # when: manual
