@@ -1,36 +1,21 @@
 ---
-title: TP - Installer un cluster swarm de dev avec incus
-# sidebar_class_name: hidden
+title: "Bonus 2 - Déployer dans Swarm"
+description: "Guide Bonus 2 - Déployer dans Swarm"
+sidebar:
+  order: 322
 ---
 
 
-## Installer incus
-
-- Observer le script `/opt/incus_for_swarm.sh`
-
-Incus permet de faire des conteneur qui se comportent comme des vm linux complètes. Contrairement à Docker les conteneurs incus disposent par exemple de systemd configuré à l'intérieur. 
-
-Il faut activer l'option de nesting des conteneur incus pour pouvoir créer des conteneur docker dans les conteneurs incus
-
-- Lancez le script qui devrait créer 5 conteneurs et installer docker à l'intérieur
-
-## Installer swarm
-
-Connectez vous au swarm
-
-## configurer le client docker pour le swarm
-
-Pour trouver l'ip du swarm manager lancez : `incus list` et récupérez l'ip en 10.x.y.z
+## TP déployer l'app d'exemple Docker
 
 Pour se connecter au cluster: 
 
-Créez un ficher `docker_env` puis sourcez le (la passphrase ssh est la même que le mdp utilisateur):
+Créez le ficher `env` puis sourcez le (la passphrase ssh est la même que le mdp utilisateur):
 
 ```sh
 ssh-add ~/.ssh/id_stagiaire
-export DOCKER_HOST="ssh://stagiaire@<ip swarm manager>"
+export DOCKER_HOST="ssh://root@49.13.22.7"
 ```
-
 
 Déployez la stack Swarm d'exemple suivante en suivant le readme: https://github.com/dockersamples/example-voting-app
 
