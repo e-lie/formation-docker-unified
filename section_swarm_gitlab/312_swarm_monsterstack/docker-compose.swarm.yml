@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  frontend:
+    image: ${DOCKER_REGISTRY:-docker.io}/${DOCKER_USER:-myuser}/monsterstack-frontend:${TAG:-latest}
+    ports:
+      - "5000:5000"
+    environment:
+      - CONTEXT=PROD
+      - REDIS_DOMAIN=redis
+      - IMAGEBACKEND_DOMAIN=imagebackend
+    networks:
+      - monster_network
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 1        # Met à jour 1 conteneur à la fois
+        delay: 10s            # Attend 10s entre chaque mise à jour
+        order: start-first    # Démarre les nouveaux avant d'arrêter les anciens (zero-downtime)
+        failure_action: rollback  # Rollback automatique en cas d'échec
+        monitor: 30s          # Surveille pendant 30s après chaque mise à jour
+      rollback_config:
+        parallelism: 2
+        delay: 5s
+        order: stop-first
+        monitor: 20s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      resources:
+        limits:
+          cpus: '0.5'         # Maximum 50% d'un CPU
+          memory: 256M
+        reservations:
+          cpus: '0.25'        # Réserve au minimum 25% d'un CPU
+          memory: 128M
+      placement:
+        constraints:
+          - node.role == worker  # Déploie uniquement sur les workers
+        preferences:
+          - spread: node.labels.zone  # Répartit entre les zones si définies
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.monsterstack.rule=Host(`monsterstack.local`)"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  imagebackend:
+    image: amouat/dnmonster:1.0
+    networks:
+      - monster_network
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+        failure_action: rollback
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+      placement:
+        constraints:
+          - node.role == worker
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - monster_network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+      placement:
+        constraints:
+          - node.role == manager  # Redis sur le manager pour la persistance
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes  # Persistence activée
+
+networks:
+  monster_network:
+    driver: overlay
+    attachable: true
+    driver_opts:
+      encrypted: "true"  # Chiffrement du trafic entre nœuds
+
+volumes:
+  redis_data:
+    driver: local

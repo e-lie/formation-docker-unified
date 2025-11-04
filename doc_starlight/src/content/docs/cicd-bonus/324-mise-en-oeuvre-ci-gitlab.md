@@ -8,7 +8,7 @@ sidebar:
 
 ### Code de base
 
-Dans le dépot de code unifié : `section_swarm_gitlab/313_mise_en_oeuvre_ci_gitlab_base`
+Dans le dépot de code unifié : `section_cicd_bonus/313_mise_en_oeuvre_ci_gitlab_base`
 
 Ouvrez le avec VSCode
 
@@ -207,7 +207,7 @@ docker-deliver-staging:
 
 ## Correction
 
-Le fichier `.gitlab-ci.yml` complet de correction est disponible dans ce dossier (`section_swarm_gitlab/314_mise_en_oeuvre_ci_gitlab/.gitlab-ci.yml`).
+Le fichier `.gitlab-ci.yml` complet de correction est disponible dans ce dossier (`section_cicd_bonus/314_mise_en_oeuvre_ci_gitlab/.gitlab-ci.yml`).
 
 ### Points clés de la correction :
 
