@@ -533,7 +533,7 @@ graph TB
 |--------|--------|--------|
 | **Daemon** | ✅ dockerd (root) | ❌ Pas de daemon |
 | **Architecture** | Client-Serveur | Fork direct |
-| **Privilèges** | Daemon root obligatoire | Rootless possible |
+| **Privilèges** | Daemon root généralement | Rootless facile |
 | **Processus parent** | containerd-shim | conmon |
 | **API** | REST API | Pas d'API par défaut* |
 | **Isolation** | Daemon = SPOF | Chaque commande isolée |
@@ -650,7 +650,7 @@ ps aux | grep conmon
 
 ## Partie 5 : Comparaison et Cas d'Usage
 
-### 5.1 Tableau Comparatif Complet
+### Tableau Comparatif Complet
 
 | Critère | Docker | containerd | Podman |
 |---------|--------|------------|--------|
@@ -668,80 +668,8 @@ ps aux | grep conmon
 | **Sécurité** | Daemon root = risque | Daemon root | Pas de daemon root |
 | **Performance** | Overhead daemon | Léger | Très léger |
 
-### 5.2 Architecture Visuelle Comparative
 
-```
-┌────────────────────────────────────────────────────────────────────┐
-│                         DOCKER                                     │
-├────────────────────────────────────────────────────────────────────┤
-│  docker CLI → dockerd (daemon) → containerd → shim → runc         │
-│                                                                    │
-│  Avantages :                                                       │
-│  ✓ Écosystème riche (Desktop, Hub, Compose)                       │
-│  ✓ Outils de build puissants                                      │
-│  ✓ Documentation exhaustive                                       │
-│                                                                    │
-│  Inconvénients :                                                   │
-│  ✗ Daemon root obligatoire (surface d'attaque)                    │
-│  ✗ Architecture complexe (3+ composants)                          │
-│  ✗ SPOF (Single Point of Failure)                                 │
-└────────────────────────────────────────────────────────────────────┘
-
-┌────────────────────────────────────────────────────────────────────┐
-│                      CONTAINERD                                    │
-├────────────────────────────────────────────────────────────────────┤
-│  ctr/crictl → containerd → shim → runc                            │
-│                                                                    │
-│  Avantages :                                                       │
-│  ✓ Léger et focalisé (pas de build, réseau complexe, etc.)       │
-│  ✓ Standard Kubernetes                                            │
-│  ✓ Stable et mature                                               │
-│                                                                    │
-│  Inconvénients :                                                   │
-│  ✗ CLI basique (pas pour usage quotidien)                        │
-│  ✗ Daemon root                                                     │
-│  ✗ Pas d'outils de build                                          │
-└────────────────────────────────────────────────────────────────────┘
-
-┌────────────────────────────────────────────────────────────────────┐
-│                        PODMAN                                      │
-├────────────────────────────────────────────────────────────────────┤
-│  podman CLI → libpod → conmon → runc/crun                        │
-│                                                                    │
-│  Avantages :                                                       │
-│  ✓ Rootless par défaut (sécurité maximale)                       │
-│  ✓ Pas de daemon (pas de SPOF)                                    │
-│  ✓ Compatible Docker CLI (alias docker=podman)                    │
-│  ✓ Support des pods Kubernetes                                    │
-│                                                                    │
-│  Inconvénients :                                                   │
-│  ✗ Écosystème moins mature                                        │
-│  ✗ Pas de Docker Swarm                                            │
-│  ✗ Outils séparés (Buildah, Skopeo)                              │
-└────────────────────────────────────────────────────────────────────┘
-```
-
-### 5.3 Quand Utiliser Quoi ?
-
-#### Utiliser Docker si :
-- Vous développez sur Windows/macOS (Docker Desktop)
-- Vous avez besoin de Docker Swarm
-- Vous voulez une solution "tout-en-un" simple
-- Vous travaillez sur des projets avec docker-compose existants
-
-#### Utiliser containerd si :
-- Vous déployez sur Kubernetes
-- Vous voulez un runtime léger sans fonctionnalités superflues
-- Vous gérez un cluster (économie de ressources)
-
-#### Utiliser Podman si :
-- La sécurité est critique (rootless)
-- Vous travaillez dans un environnement sans accès root
-- Vous voulez éviter un daemon centralisé
-- Vous préparez des déploiements Kubernetes (pods)
-- Vous êtes sur Linux uniquement
-
-### 5.4 OCI : Le Standard Commun
+### Le Standard Commun
 
 Tous ces outils respectent **OCI (Open Container Initiative)** :
 
@@ -850,15 +778,6 @@ docker run --rm --cap-drop=ALL alpine hostname new-hostname
 # → échoue (plus de capabilities)
 ```
 
-## Conclusion
-
-### Points Clés à Retenir
-
-1. **Les conteneurs sont des processus Linux** avec isolation via namespaces, cgroups et capabilities
-2. **Docker** = Architecture complète avec daemon, build, réseau, orchestration
-3. **containerd** = Runtime focalisé, standard Kubernetes
-4. **Podman** = Alternative sans daemon, rootless, sécurisée
-5. **OCI** = Standard garantissant l'interopérabilité
 
 ### Aller Plus Loin
 
