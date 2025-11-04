@@ -46,7 +46,7 @@ const SECTIONS = [
     label: 'Sécurité & Observabilité'
   },
   {
-    name: 'section_cicd_bonus',
+    name: 'section_swarm_gitlab',
     targetDir: 'cicd-bonus',
     label: 'CI/CD & Bonus'
   },

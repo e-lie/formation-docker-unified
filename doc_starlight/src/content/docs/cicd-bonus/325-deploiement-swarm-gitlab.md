@@ -21,7 +21,7 @@ Dans ce TP, vous allez étendre le pipeline GitLab CI/CD pour :
 
 ## Code de base
 
-Reprenez votre projet du TP 314 ou utilisez le code de correction dans `section_cicd_bonus/314_mise_en_oeuvre_ci_gitlab/`.
+Reprenez votre projet du TP 314 ou utilisez le code de correction dans `section_swarm_gitlab/314_mise_en_oeuvre_ci_gitlab/`.
 
 ## Étape 1 : Préparer le fichier docker-compose.yml pour Swarm
 
