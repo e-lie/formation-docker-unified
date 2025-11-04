@@ -43,6 +43,11 @@ docker_mode     = "standard"
 enable_swarm    = false
 hcloud_ssh_keys = ["nom-de-votre-cle-ssh"]
 enable_dns      = true
+
+digitalocean_token  = ""               
+dns_domain          = "dopl.uk"        
+dns_subdomain       = "elie"
+dns_create_wildcard = true
 ```
 
 **Points importants :**
@@ -50,7 +55,7 @@ enable_dns      = true
 - `enable_swarm = false` : Pas de configuration automatique de Swarm (nous le ferons manuellement)
 - `node_count = 3` : Déploiement de 3 serveurs
 - `enable_dns = true` : Configuration DNS (optionnel)
-- Le formateur va vous fournir une clé hetzner cloud
+- Le formateur va vous fournir une clé hetzner cloud et digitalocean
 
 ### Étape 2 : Déploiement
 
@@ -64,6 +69,12 @@ Vérifiez le plan de déploiement :
 
 ```bash
 terraform plan
+```
+
+Déverrouilez la clé ssh stagiaire :
+
+```bash
+ssh-add ~/.ssh/id_stagiaire
 ```
 
 Déployez l'infrastructure :
