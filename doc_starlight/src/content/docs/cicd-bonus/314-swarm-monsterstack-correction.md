@@ -2,7 +2,7 @@
 title: "TP - Déployer MonsterStack dans Docker Swarm"
 description: "Guide TP - Déployer MonsterStack dans Docker Swarm"
 sidebar:
-  order: 312
+  order: 314
 draft: false
 ---
 
@@ -25,16 +25,6 @@ Dans ce TP, vous allez déployer l'application **MonsterStack** dans un cluster 
 - Un cluster Docker Swarm fonctionnel (voir TP 310_swarm_install)
 - L'application MonsterStack (disponible dans ce dossier)
 - Accès au manager Swarm
-
-## Accès ssh au manager Swarm
-
-**Se connecter à un hôte Docker distant via SSH**
-
-Ajoutez à `~/.bashrc`:
-
-```bash
-export DOCKER_HOST="ssh://<votreuser>@<ip-server-1>" # terraform apply pour reoutput les IP
-```
 
 ## Architecture de l'application
 
