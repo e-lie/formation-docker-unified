@@ -206,7 +206,7 @@ volumes:
     driver: local
 ```
 
-### Points clés de la configuration Swarm
+### Points importants de cette configuration Swarm
 
 **1. Deploy section (spécifique à Swarm)** :
 - `replicas` : Nombre de conteneurs à lancer
@@ -606,17 +606,6 @@ Stack complète pour monitorer les métriques Swarm.
 
 Voir TP 325_deploiement_swarm_gitlab pour automatiser le déploiement.
 
-## Conclusion
-
-Vous avez déployé une application complète dans Docker Swarm en exploitant :
-
-✅ **Orchestration** : Réplication, placement, scaling
-✅ **Ressources** : Limites et réservations CPU/RAM
-✅ **Disponibilité** : Rolling updates, healthchecks, auto-healing
-✅ **Sécurité** : Secrets chiffrés, réseaux overlay chiffrés
-✅ **Résilience** : Rollback automatique, restart policies
-
-Docker Swarm offre un excellent équilibre entre **simplicité** et **fonctionnalités** pour orchestrer des conteneurs en production, sans la complexité de Kubernetes.
 
 ## Références
 
