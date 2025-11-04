@@ -22,6 +22,16 @@ Dans ce TP, vous allez déployer l'application **MonsterStack** dans un cluster 
 - L'application MonsterStack (disponible dans ce dossier)
 - Accès au manager Swarm
 
+## Accès ssh au manager Swarm
+
+**Se connecter à un hôte Docker distant via SSH**
+
+Ajoutez à `~/.bashrc`:
+
+```bash
+export DOCKER_HOST="ssh://<votreuser>@<ip-server-1>" # terraform apply pour reoutput les IP
+```
+
 ## Architecture de l'application
 
 **MonsterStack** est une application web composée de trois services :

@@ -1,0 +1,44 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'swarm-cluster'
+    monitor: 'swarm-monitoring'
+
+# Règles d'alerte (optionnel)
+# rule_files:
+#   - /etc/prometheus/alerts.yml
+
+scrape_configs:
+  # Métriques Prometheus lui-même
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Métriques Docker (cAdvisor)
+  - job_name: 'cadvisor'
+    dns_sd_configs:
+      - names:
+          - 'tasks.cadvisor'
+        type: 'A'
+        port: 8080
+    relabel_configs:
+      - source_labels: [__meta_dns_name]
+        target_label: node
+
+  # Métriques système (Node Exporter)
+  - job_name: 'node-exporter'
+    dns_sd_configs:
+      - names:
+          - 'tasks.node-exporter'
+        type: 'A'
+        port: 9100
+    relabel_configs:
+      - source_labels: [__meta_dns_name]
+        target_label: node
+
+  # Métriques Docker Swarm (si disponible)
+  # - job_name: 'dockerd'
+  #   static_configs:
+  #     - targets: ['host.docker.internal:9323']
+  #   # Note: nécessite d'activer les métriques Docker avec --experimental et --metrics-addr
