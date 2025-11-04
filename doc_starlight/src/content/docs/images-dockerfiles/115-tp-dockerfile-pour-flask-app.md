@@ -1,6 +1,6 @@
 ---
-title: "TP Dockerfile TP : conteneuriser une application flask"
-description: "Guide TP Dockerfile TP : conteneuriser une application flask"
+title: "TP Dockerfile TP : conteneuriser une application python flask"
+description: "Guide TP Dockerfile TP : conteneuriser une application python flask"
 sidebar:
   order: 115
 ---
@@ -9,7 +9,7 @@ sidebar:
 
 Si vous ne l'avez pas encore fait, récupérez le dépot unifié de la formation : `git clone https://github.com/e-lie/formation-docker-unified.git`
 
-Vous pouvez ensuite ouvrir le dossier `section_images_dockerfiles/113_tp_dockerfile_flask_app_base/python_app`
+Vous pouvez ensuite ouvrir le dossier `section_images_dockerfiles/115_tp_dockerfile_flask_app_base/python_app`
 
 Déployer une application Flask manuellement à chaque fois est relativement pénible. Pour que les dépendances de deux projets Python ne se perturbent pas, il faut normalement utiliser un environnement virtuel `virtualenv` pour séparer ces deux apps.
 

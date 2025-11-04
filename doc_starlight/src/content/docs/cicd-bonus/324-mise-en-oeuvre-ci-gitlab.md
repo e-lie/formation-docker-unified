@@ -144,8 +144,12 @@ docker-build:
     - docker:dind
   variables:
     DOCKER_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    # Recommandation GitLab : utiliser TLS pour docker:dind
+    DOCKER_TLS_CERTDIR: "/certs"
   before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    # Méthode recommandée par GitLab : utiliser CI_JOB_TOKEN via stdin
+    # CI_JOB_TOKEN est automatiquement fourni et expire après le job
+    - echo "$CI_JOB_TOKEN" | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
   script:
     - docker build --pull -t "$DOCKER_IMAGE_NAME" .
     # All branches are tagged with $DOCKER_IMAGE_NAME (defaults to commit ref slug)
@@ -178,8 +182,11 @@ docker-deliver-staging:
     - docker:dind
   variables:
     DOCKER_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    # Recommandation GitLab : utiliser TLS pour docker:dind
+    DOCKER_TLS_CERTDIR: "/certs"
   before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    # Méthode recommandée par GitLab : utiliser CI_JOB_TOKEN via stdin
+    - echo "$CI_JOB_TOKEN" | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
   script:
     # Staging branch generates a `staging` image
     - docker pull "$DOCKER_IMAGE_NAME"
@@ -220,8 +227,42 @@ Le fichier `.gitlab-ci.yml` complet de correction est disponible dans ce dossier
 
 - `$CI_REGISTRY_IMAGE` : URL complète de l'image dans le registry GitLab du projet
 - `$CI_COMMIT_REF_SLUG` : Nom de la branche/tag nettoyé pour être utilisé dans un tag Docker
-- `$CI_REGISTRY_USER` et `$CI_REGISTRY_PASSWORD` : Credentials automatiques pour s'authentifier au registry
+- `$CI_REGISTRY_USER` : Username pour s'authentifier au registry GitLab (généralement `gitlab-ci-token`)
+- `$CI_JOB_TOKEN` : **Token d'authentification temporaire** fourni automatiquement par GitLab pour chaque job (expire après le job)
 - `$CI_REGISTRY` : URL du registry GitLab
+
+### Bonnes pratiques d'authentification GitLab
+
+**❌ Méthode déconseillée** (ancienne documentation) :
+```yaml
+docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+```
+
+**Problèmes** :
+- `CI_REGISTRY_PASSWORD` est deprecated et peut ne plus être disponible
+- Les credentials apparaissent en clair dans les logs (avec `-p`)
+- Moins sécurisé
+
+**✅ Méthode recommandée** (GitLab officiel) :
+```yaml
+echo "$CI_JOB_TOKEN" | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+```
+
+**Avantages** :
+- `CI_JOB_TOKEN` est automatiquement fourni et sécurisé
+- Token temporaire qui expire après le job (sécurité renforcée)
+- `--password-stdin` empêche le token d'apparaître dans les logs
+- Recommandation officielle GitLab depuis 2020
+
+### Configuration Docker-in-Docker (DinD)
+
+La variable `DOCKER_TLS_CERTDIR: "/certs"` est **importante** pour la sécurité :
+- Active TLS entre le client Docker (job) et le daemon Docker (service docker:dind)
+- Évite les attaques "man-in-the-middle" dans le pipeline
+- Obligatoire depuis Docker 19.03+ pour docker:dind
+- Les certificats sont automatiquement générés et partagés via le volume `/certs`
+
+**Note** : Si vous utilisez une très vieille version de Docker ou rencontrez des problèmes, vous pouvez désactiver TLS avec `DOCKER_TLS_CERTDIR: ""`, mais c'est **déconseillé en production**.
 
 ### Particularités observables :
 

@@ -56,8 +56,11 @@ docker-build:
     - docker:dind
   variables:
     DOCKER_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    # Recommandation GitLab : utiliser TLS pour docker:dind
+    DOCKER_TLS_CERTDIR: "/certs"
   before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    # Méthode recommandée par GitLab : utiliser CI_JOB_TOKEN via stdin
+    - echo "$CI_JOB_TOKEN" | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
   script:
     - docker build --pull -t "$DOCKER_IMAGE_NAME" .
     # All branches are tagged with $DOCKER_IMAGE_NAME (defaults to commit ref slug)
@@ -81,8 +84,11 @@ docker-deliver-staging:
     - docker:dind
   variables:
     DOCKER_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    # Recommandation GitLab : utiliser TLS pour docker:dind
+    DOCKER_TLS_CERTDIR: "/certs"
   before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    # Méthode recommandée par GitLab : utiliser CI_JOB_TOKEN via stdin
+    - echo "$CI_JOB_TOKEN" | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
   script:
     # Staging branch generates a `staging` image
     - docker pull "$DOCKER_IMAGE_NAME"
