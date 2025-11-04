@@ -1,0 +1,103 @@
+stages:
+  - build
+  - test
+  - deliver
+
+variables:
+  IMAGE_NAME: monsterstack
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+
+# Build the image with Buildah
+build-with-buildah:
+  stage: build
+  image: quay.io/buildah/stable:latest
+  script:
+    - buildah --version
+    - buildah build -t $IMAGE_NAME:$CI_COMMIT_SHORT_SHA .
+    # Save the image as an OCI archive for next stages
+    - buildah push $IMAGE_NAME:$CI_COMMIT_SHORT_SHA oci-archive:image.tar
+  artifacts:
+    paths:
+      - image.tar
+    expire_in: 1 hour
+
+# Run tests with Podman
+test-unit:
+  stage: test
+  image: quay.io/podman/stable:latest
+  dependencies:
+    - build-with-buildah
+  script:
+    - podman --version
+    # Load the image from the archive
+    - podman load -i image.tar
+    # Run unit tests in the container
+    - |
+      podman run --rm $IMAGE_NAME:$CI_COMMIT_SHORT_SHA \
+        sh -c "cd /app && python3 -m pytest tests/unit.py -v" || true
+  allow_failure: true
+
+# Integration tests (optional)
+test-integration:
+  stage: test
+  image: quay.io/podman/stable:latest
+  dependencies:
+    - build-with-buildah
+  services:
+    - redis:alpine
+  script:
+    - podman load -i image.tar
+    # Run integration tests
+    - |
+      podman run --rm \
+        -e REDIS_DOMAIN=redis \
+        $IMAGE_NAME:$CI_COMMIT_SHORT_SHA \
+        sh -c "cd /app && python3 -m pytest tests/integration.py -v" || true
+  allow_failure: true
+
+# Push to registry with Skopeo
+push-to-registry:
+  stage: deliver
+  image: quay.io/skopeo/stable:latest
+  dependencies:
+    - build-with-buildah
+  before_script:
+    - skopeo --version
+    # Login to GitLab Container Registry
+    - skopeo login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    # Push the specific commit tag
+    - skopeo copy oci-archive:image.tar docker://$IMAGE_TAG
+    # Also push as 'latest' for main branch
+    - |
+      if [ "$CI_COMMIT_BRANCH" == "main" ]; then
+        skopeo copy oci-archive:image.tar docker://$CI_REGISTRY_IMAGE:latest
+      fi
+    # Inspect the pushed image
+    - skopeo inspect docker://$IMAGE_TAG
+  only:
+    - main
+    - develop
+    - tags
+
+# Alternative: Push with Podman (instead of Skopeo)
+# push-with-podman:
+#   stage: deliver
+#   image: quay.io/podman/stable:latest
+#   dependencies:
+#     - build-with-buildah
+#   before_script:
+#     - podman login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+#   script:
+#     - podman load -i image.tar
+#     - podman tag $IMAGE_NAME:$CI_COMMIT_SHORT_SHA $IMAGE_TAG
+#     - podman push $IMAGE_TAG
+#     - |
+#       if [ "$CI_COMMIT_BRANCH" == "main" ]; then
+#         podman tag $IMAGE_TAG $CI_REGISTRY_IMAGE:latest
+#         podman push $CI_REGISTRY_IMAGE:latest
+#       fi
+#   only:
+#     - main
+#     - develop
+#     - tags

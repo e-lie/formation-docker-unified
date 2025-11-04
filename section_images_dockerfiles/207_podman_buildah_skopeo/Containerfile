@@ -1,0 +1,39 @@
+# Containerfile for Podman/Buildah
+# This is the Podman-native equivalent of Dockerfile
+# Syntax is identical to Dockerfile, but the name "Containerfile" is preferred in the Podman ecosystem
+
+FROM python:3.10
+
+# Create user and group for running the application
+RUN groupadd -r uwsgi && useradd -r -g uwsgi uwsgi
+
+# Install Python dependencies
+RUN pip install Flask uWSGI requests redis
+
+# Set up working directory
+WORKDIR /app
+
+# Copy application files
+COPY ./app /app
+COPY boot.sh /
+
+# Make boot script executable
+RUN chmod a+x /boot.sh
+
+# Environment variables
+ENV CONTEXT=PROD
+ENV IMAGEBACKEND_DOMAIN=imagebackend
+ENV REDIS_DOMAIN=redis
+
+# Expose ports
+EXPOSE 5000 9191
+
+# Switch to non-root user
+USER uwsgi
+
+# Default command
+CMD ["/boot.sh"]
+
+# Note: This Containerfile is functionally identical to Dockerfile
+# Podman/Buildah can use either Dockerfile or Containerfile
+# The name "Containerfile" is preferred for Podman-first projects

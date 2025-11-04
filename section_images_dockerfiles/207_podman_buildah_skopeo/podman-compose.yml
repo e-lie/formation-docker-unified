@@ -1,0 +1,45 @@
+# Podman Compose configuration
+# Compatible with both podman-compose and docker-compose
+# Optimized for Podman with some Podman-specific options
+
+version: '3'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Containerfile  # Using Containerfile instead of Dockerfile
+    image: monsterstack:podman
+    ports:
+      - "5000:5000"
+    environment:
+      - CONTEXT=DEV
+      - REDIS_DOMAIN=redis
+      - IMAGEBACKEND_DOMAIN=imagebackend
+    networks:
+      - monster_network
+    volumes:
+      - ./app:/app  # Hot reload for development
+    depends_on:
+      - redis
+      - imagebackend
+
+  imagebackend:
+    image: amouat/dnmonster:1.0
+    networks:
+      - monster_network
+
+  redis:
+    image: redis:alpine
+    networks:
+      - monster_network
+    # Podman-specific: can add security options
+    # security_opt:
+    #   - label=disable
+
+networks:
+  monster_network:
+    driver: bridge
+
+# Note: For rootless Podman, use ports >= 1024
+# If you need port 80, configure: sysctl net.ipv4.ip_unprivileged_port_start=80
