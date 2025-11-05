@@ -1,6 +1,10 @@
 ---
-title: Gestion des resources avec Docker ou un cluster Swarm mode
+title: "Gestion des resources avec Docker ou un cluster Swarm mode"
+description: "Guide Gestion des resources avec Docker ou un cluster Swarm mode"
+sidebar:
+  order: 313
 ---
+
 
 ## Gestion des Ressources
 
