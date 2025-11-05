@@ -1,19 +1,6 @@
-# 314 - Gestion et Optimisation des Ressources Java dans Docker
-
-
-## 1. Quleques concepts
-
-### Shared Memory (SHM)
-
-La **shared memory** (`/dev/shm`) permet la communication rapide entre processus dans un conteneur.
-
-**Applications concernées :**
-- **PostgreSQL** : cache, sorts, hash joins
-- **Redis** : structures de données partagées
-- **Chrome/Selenium** : communication inter-processus
-- **ML frameworks** (PyTorch, TensorFlow) : partage de tenseurs
-
-**⚠️ Important :** `shm_size` est **inclus** dans la limite totale de mémoire du conteneur.
+---
+title: Optimiser la gestion des ressources Java dans Docker
+---
 
 ### Anatomie de la Mémoire d'un Conteneur Java
 
@@ -41,100 +28,34 @@ La **shared memory** (`/dev/shm`) permet la communication rapide entre processus
 └─────────────────────────────────────────┘
 ```
 
-**Formule de calcul :**
+Quand une application Java tourne dans un conteneur Docker, la mémoire totale allouée au conteneur (par exemple 2GB) doit être partagée entre différentes zones. Le Heap (configuré avec -Xmx) n'est qu'une partie de cette mémoire totale.
+Les trois grandes zones :
+
+Heap : La mémoire où vivent vos objets Java (Young/Old Generation)
+Non-Heap : Métadonnées des classes (Metaspace) et code compilé (Code Cache)
+Native Memory : Threads de l'OS, buffers directs, et autres allocations système
+
 ```
 Container Memory = Heap + Metaspace + CodeCache +
                    ThreadStacks + DirectBuffers + OSOverhead
 ```
 
-**Règle de base :**
+La règle de base :
+
 ```
 -Xmx (max heap) ≈ 50-75% du Container Memory Limit
 ```
 
-## 2. Configuration des Ressources dans Docker
+Par exemple, avec un conteneur de 2GB, mettez -Xmx1200m ou -Xmx1500m maximum.
+Pourquoi ?
 
-### 2.1 Docker Compose
+Si vous mettez -Xmx2G dans un conteneur de 2GB, il ne reste plus de place pour les autres zones mémoire. Résultat : votre conteneur sera tué par l'OOM Killer (Out Of Memory) même si le Heap n'est pas plein, car la mémoire totale dépasse la limite du conteneur.
 
-```yaml
-version: '3.8'
+## Optimisation Java pour Docker
 
-services:
-  myapp:
-    image: myapp:latest
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 2G      # Limite totale
-        reservations:
-          cpus: '1'
-          memory: 1G      # Ressources garanties
-```
+### Paramètres JVM Essentiels
 
-### 2.2 Docker Swarm
-
-**Dans Swarm, seule la section `deploy.resources` est prise en compte.**
-
-```yaml
-version: '3.8'
-
-services:
-  myapp:
-    image: myapp:latest
-    deploy:
-      replicas: 1
-      resources:
-        limits:
-          cpus: '4'
-          memory: 8G
-        reservations:
-          cpus: '2'        # 50% de limits (bonne pratique)
-          memory: 4G
-      restart_policy:
-        condition: on-failure
-        delay: 10s
-        max_attempts: 3
-```
-
-**Règle 50/50 :** `reservations` = 50% de `limits`
-
----
-
-## 3. Optimisation Java pour Docker
-
-### 3.1 Dockerfile Optimisé
-
-```dockerfile
-FROM eclipse-temurin:17-jre-alpine
-
-# Utilisateur non-root
-RUN addgroup -g 1000 appgroup && \
-    adduser -u 1000 -G appgroup -s /bin/sh -D appuser
-
-WORKDIR /app
-COPY --chown=appuser:appgroup target/myapp.jar /app/app.jar
-
-USER appuser
-
-# Variables JVM
-ENV JAVA_OPTS="-XX:+UseContainerSupport \
-               -XX:MaxRAMPercentage=75.0 \
-               -XX:InitialRAMPercentage=50.0 \
-               -XX:+UseG1GC \
-               -XX:MaxGCPauseMillis=200 \
-               -XX:+HeapDumpOnOutOfMemoryError \
-               -XX:HeapDumpPath=/app/heapdump.hprof \
-               -XX:+ExitOnOutOfMemoryError"
-
-EXPOSE 8080
-
-ENTRYPOINT exec java $JAVA_OPTS -jar /app/app.jar
-```
-
-### 3.2 Paramètres JVM Essentiels
-
-#### Options pour Docker (CRITIQUES)
+#### Options de mémoire automatique pour Docker
 
 ```bash
 # Détecter les limites du conteneur
@@ -192,9 +113,38 @@ ENTRYPOINT exec java $JAVA_OPTS -jar /app/app.jar
 -XX:HeapDumpPath=/app/dumps/heapdump.hprof
 ```
 
-Deux exemples de profils applicatifs
+### Dockerfile Optimisé
 
-### Une API Standard (2 GB)
+```dockerfile
+FROM eclipse-temurin:17-jre-alpine
+
+# Utilisateur non-root
+RUN addgroup -g 1000 appgroup && \
+    adduser -u 1000 -G appgroup -s /bin/sh -D appuser
+
+WORKDIR /app
+COPY --chown=appuser:appgroup target/myapp.jar /app/app.jar
+
+USER appuser
+
+# Variables JVM
+ENV JAVA_OPTS="-XX:+UseContainerSupport \
+               -XX:MaxRAMPercentage=75.0 \
+               -XX:InitialRAMPercentage=50.0 \
+               -XX:+UseG1GC \
+               -XX:MaxGCPauseMillis=200 \
+               -XX:+HeapDumpOnOutOfMemoryError \
+               -XX:HeapDumpPath=/app/heapdump.hprof \
+               -XX:+ExitOnOutOfMemoryError"
+
+EXPOSE 8080
+
+ENTRYPOINT exec java $JAVA_OPTS -jar /app/app.jar
+```
+
+### Deux exemples de profils applicatifs
+
+#### Une API Standard avec TOMCAT (2 GB RAM)
 
 ```yaml
 services:
@@ -228,7 +178,7 @@ services:
 - CodeCache: 128M
 - Thread stacks (100 threads × 512k): ~50M
 
-### Une Application Lourde (4+ GB)
+#### Une Application plus importante (4+ GB)
 
 ```yaml
 services:
@@ -255,51 +205,6 @@ services:
       SERVER_TOMCAT_THREADS_MAX: 200
       SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: 20
 ```
-
----
-
-## 5. Configuration Shared Memory
-
-### 5.1 Dimensionnement par Application
-
-| Application | shm_size | Memory Limit | Ratio SHM/Total |
-|-------------|----------|--------------|-----------------|
-| Java app | 128m | 2-4G | 6% |
-| PostgreSQL | 256m-1g | 2-8G | 12-25% |
-| Redis | 64m | 512m-2G | 6% |
-| Selenium/Chrome | 2g | 4G | 50% |
-| GitLab (prod) | 512m-1g | 8-16G | 6% |
-
-### 5.2 Exemple PostgreSQL
-
-```yaml
-services:
-  postgres:
-    image: postgres:15
-    shm_size: '512m'
-    deploy:
-      resources:
-        limits:
-          memory: 4G
-    environment:
-      POSTGRES_SHARED_BUFFERS: 256MB  # 50% de shm_size
-      POSTGRES_WORK_MEM: 16MB
-      POSTGRES_MAX_CONNECTIONS: 100
-```
-
-**⚠️ Pour Swarm :** `shm_size` au niveau racine, pas dans `deploy`
-
-```yaml
-services:
-  postgres:
-    image: postgres:15
-    shm_size: '512m'  # Ici, pas dans deploy
-    deploy:
-      resources:
-        limits:
-          memory: 4G
-```
-
 
 
 ### Problèmes Courants
