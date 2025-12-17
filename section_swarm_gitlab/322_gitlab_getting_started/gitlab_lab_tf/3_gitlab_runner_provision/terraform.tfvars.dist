@@ -1,0 +1,92 @@
+# ============================================================================
+# PROJET 3 : GitLab Runner + Provisionnement
+# ============================================================================
+# Ce projet configure le runner GitLab et provisionne les utilisateurs
+
+# IMPORTANT : Ce projet nécessite que GitLab soit déjà installé et accessible
+# Vous devez avoir créé un Personal Access Token dans GitLab
+
+# ============================================================================
+# Configuration Hetzner Cloud
+# ============================================================================
+
+# Token API Hetzner Cloud (pour récupérer les infos du serveur)
+hcloud_token = "votre_token_hetzner_cloud_ici"
+
+# ============================================================================
+# Configuration du Serveur
+# ============================================================================
+
+prefix = "lab"
+
+# ============================================================================
+# Configuration SSH (optionnel)
+# ============================================================================
+
+ssh_user = "root"
+# ssh_private_key = ""
+
+# ============================================================================
+# Configuration GitLab Provider
+# ============================================================================
+
+# URL de votre instance GitLab (utilisez la même que dans le projet 2)
+gitlab_external_url = "https://gitlab.dopl.uk"
+
+# Personal Access Token GitLab (REQUIS)
+# Créez-le dans GitLab : User Settings > Access Tokens
+# - Name: "Terraform"
+# - Scopes: api
+# - Role: Administrator (utiliser le compte root)
+gitlab_token = "glpat-xxxxxxxxxxxxxxxxxxxxx"
+
+# ============================================================================
+# Configuration GitLab Runner
+# ============================================================================
+
+# Activer l'installation automatique du runner
+auto_install_runner = true
+
+# Description du runner
+runner_description = "Docker Runner - Auto-configured"
+
+# Tags du runner (pour cibler des jobs spécifiques)
+runner_tags = ["docker", "auto", "shared"]
+
+# Type d'executor : "docker" ou "shell"
+runner_executor = "docker"
+
+# ============================================================================
+# Configuration des Utilisateurs de Lab
+# ============================================================================
+
+# La configuration par défaut crée 4 utilisateurs (définis dans variables.tf).
+# Vous pouvez personnaliser ou ajouter des utilisateurs ci-dessous.
+#
+# Mot de passe : xK9#mZ2$pL7@qR5! (pour tous)
+
+# Personnaliser les utilisateurs (optionnel)
+# Décommentez et modifiez pour personnaliser les noms, usernames et emails
+#
+# gitlab_users = {
+#   stagiaire1 = {
+#     name     = "Alice Martin"
+#     username = "alice"
+#     email    = "alice.martin@formation.com"
+#   }
+#   stagiaire2 = {
+#     name     = "Bob Dupont"
+#     username = "bob"
+#     email    = "bob.dupont@formation.com"
+#   }
+#   stagiaire3 = {
+#     name     = "Charlie Rousseau"
+#     username = "charlie"
+#     email    = "charlie.rousseau@formation.com"
+#   }
+#   stagiaire4 = {
+#     name     = "Diana Lefebvre"
+#     username = "diana"
+#     email    = "diana.lefebvre@formation.com"
+#   }
+# }

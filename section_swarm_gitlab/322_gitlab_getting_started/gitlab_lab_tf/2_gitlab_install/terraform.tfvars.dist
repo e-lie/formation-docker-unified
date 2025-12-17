@@ -1,0 +1,46 @@
+# ============================================================================
+# PROJET 2 : Installation GitLab
+# ============================================================================
+# Ce projet installe GitLab sur le serveur créé au Projet 1
+
+# ============================================================================
+# Configuration Hetzner Cloud
+# ============================================================================
+
+# Token API Hetzner Cloud (pour récupérer les infos du serveur)
+hcloud_token = "votre_token_hetzner_cloud_ici"
+
+# ============================================================================
+# Configuration du Serveur
+# ============================================================================
+
+prefix   = "lab"
+username = "gitlab-admin"
+
+# ============================================================================
+# Configuration SSH (optionnel)
+# ============================================================================
+
+ssh_user = "root"
+# ssh_private_key = ""
+
+# ============================================================================
+# Configuration GitLab
+# ============================================================================
+
+gitlab_hostname = "gitlab"
+
+# URL externe - utilisez le même que dans le projet 1
+gitlab_external_url = "https://gitlab.dopl.uk"
+
+# Mot de passe root pour GitLab
+gitlab_root_password = "ChangeMe123!SecurePassword"
+
+# Activer HTTPS avec Let's Encrypt
+enable_https      = true
+letsencrypt_email = "cto@dopl.uk"
+
+# Lancer automatiquement GitLab lors du terraform apply
+# Si true : GitLab démarre automatiquement (prend 10-15 min)
+# Si false : Vous devrez lancer manuellement ./install-gitlab.sh sur le serveur
+auto_install_gitlab = true

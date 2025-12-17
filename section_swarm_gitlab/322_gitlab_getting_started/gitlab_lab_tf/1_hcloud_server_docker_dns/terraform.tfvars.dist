@@ -1,0 +1,37 @@
+# ============================================================================
+# PROJET 1 : Serveur Hetzner + Docker + DNS
+# ============================================================================
+# Ce projet crée le serveur de base, installe Docker et configure le DNS
+
+# ============================================================================
+# Configuration Hetzner Cloud
+# ============================================================================
+
+# Token API Hetzner Cloud (obligatoire)
+hcloud_token = "votre_token_hetzner_cloud_ici"
+
+# Noms des clés SSH déjà configurées dans Hetzner Cloud
+hcloud_ssh_keys = ["nom-de-votre-cle-ssh"]
+
+# ============================================================================
+# Configuration du Serveur
+# ============================================================================
+
+prefix      = "lab"
+username    = "gitlab-admin"
+server_type = "cpx31"
+
+# ============================================================================
+# Configuration SSH (optionnel)
+# ============================================================================
+
+ssh_user = "root"
+# ssh_private_key = ""
+
+# ============================================================================
+# Configuration DNS DigitalOcean (Optionnel)
+# ============================================================================
+
+digitalocean_token  = "votre_token_digitalocean_ici"
+gitlab_external_url = "https://gitlab.dopl.uk"
+# dns_ttl = 300
