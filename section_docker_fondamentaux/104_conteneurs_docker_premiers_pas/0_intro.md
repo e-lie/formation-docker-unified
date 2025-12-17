@@ -194,7 +194,7 @@ Pour éviter d'aller chercher l'IP manuellement du conteneur, IP de sucroit dyna
 
 ```shell
 docker run -d nginx
-
+```
 
 
 ### Lancer un conteneur avec une commande

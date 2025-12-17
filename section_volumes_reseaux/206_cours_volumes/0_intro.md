@@ -41,42 +41,24 @@ VOLUME ["/data"]
 ```
 L'instruction `VOLUME` dans un `Dockerfile` permet de désigner les volumes qui devront être créés lors du lancement du conteneur. 
 
+Même si on ne le précise pas, Docker **crée quand même un volume Docker au nom généré aléatoirement**, un volume "caché".
+
+Exemple :
+
 ```dockerfile
 FROM ubuntu
-RUN mkdir /myvol
-RUN date > /myvol/created_at
 VOLUME /myvol
-CMD ["bash", "-c", "cat /myvol/created_at"]
+# la CMD par défaut récupère la date et heure courante et l'écrit dans un fichier dans le volume
+CMD ["bash", "-c", "date | tee /myvol/created_at.txt"]
 ```
 
 ```shell
 docker build -t created_at
+docker volume ls
 docker run created_at
-```
-
-On précise ensuite avec l'option `-v` de `docker run` à quoi connecter ces volumes. 
-
-Si on ne le précise pas, Docker crée quand même un volume Docker au nom généré aléatoirement, un volume "caché".
-
-## Bind mounting : un dossier partagé avec le conteneur
-
-Lorsqu'un répertoire hôte spécifique est utilisé dans un volume (la syntaxe `-v HOST_DIR:CONTAINER_DIR`), elle est souvent appelée **bind mounting** ("montage lié").
-
-La particularité, c'est que le point de montage sur l'hôte est explicite plutôt que caché dans un répertoire appartenant à Docker.
-
-Exemple :
-
-```shell
-# Sur l'hôte
-docker run -it -v /home/user/app/config.conf:/config/main.conf:ro -v /home/user/app/data:/data ubuntu /bin/bash
-
-# Dans le conteneur
-cd /data/
-touch testfile
-exit
-
-# Sur l'hôte
-ls /home/user/app/data:
+docker container inspect created_at # chercher la section Mount et le hash du volume
+docker volume ls # le docker run a entrainé la création d'un volume anonyme dont le nom est un hash
+sudo ls /var/lib/docker/volumes/<hash_du_volume>/_data # les données sont stockée par défaut en local dans docker
 ```
 
 ## Les volumes Docker via la sous-commande `volume`
@@ -106,6 +88,29 @@ docker image history redis
 ...
 ```
 
+## Bind mounting : un dossier partagé avec le conteneur
+
+Le bind mounting n'est **pas un volume à proprement parler**
+
+Lorsqu'un répertoire hôte spécifique est utilisé dans un volume (la syntaxe `-v HOST_DIR:CONTAINER_DIR`), elle est souvent appelée **bind mounting** ("montage lié").
+
+La particularité, c'est que le point de montage sur l'hôte est explicite plutôt que caché dans un répertoire appartenant à Docker.
+
+Exemple :
+
+```shell
+# Sur l'hôte
+docker run -it -v /home/user/app/config.conf:/config/main.conf:ro -v /home/user/app/data:/data ubuntu /bin/bash
+
+# Dans le conteneur
+cd /data/
+touch testfile
+exit
+
+# Sur l'hôte
+ls /home/user/app/data:
+```
+
 ### Partager des données avec un volume
 
 **Pour partager des données on peut monter le même volume dans plusieurs conteneurs.**
@@ -125,7 +130,6 @@ docker exec conteneur_2 touch /data/file_2
 docker logs conteneur_1 
 ```
 
-
 ### L'argument verbeux : `docker run --mount`
 
 Cette option plus verbeuse que "-v" est préconisée car elle permet de bien spécifier les types de points de montage.
@@ -139,6 +143,9 @@ Cette option plus verbeuse que "-v" est préconisée car elle permet de bien sp�
        type=tmpfs,tmpfs-size=512M,destination=/path/in/container
 
 ```
+
+
+### Dans un cloud : besoin de volume réseau partager entre les serveurs hotes Docker
 
 ### Plugins de volumes
 
@@ -157,9 +164,28 @@ docker volume create -d vieux/sshfs -o sshcmd=<sshcmd> -o allow_other sshvolume
 docker run -p 8080:8080 -v sshvolume:/path/to/folder --name test someimage
 ```
 
+Mais les driver Docker ne sont plus maintenus car la production cloud avec Docker est dépréciée en faveur de Kubernetes
+
+On peut tout de même utiliser NFS manuellement pour cela : 
+
+#### Création d’un Volume NFS avec le Driver Local
+
+pour créer un volume NFS on peut utiliser la commande `docker volume create` avec des options spécifiques pour NFS. 
+
+```bash
+docker volume create --driver local \
+  --opt type=nfs \
+  --opt o=addr=ip_serveur_nfs,nolock,soft,rw \
+  --opt device=:/chemin_du_dossier_nfs \
+  mon_volume_nfs
+```
+
+Remplacez `ip_serveur_nfs` par l’adresse IP ou le nom d’hôte du serveur NFS et `/chemin_du_dossier_nfs` par le chemin du répertoire NFS que vous souhaitez monter.
+
+
 ### Permissions
 
-- Un volume est créé avec les permissions du dossier préexistant.
+Un volume est créé avec les permissions du dossier préexistant c'est à dire l'UID/GID de l'utilisateur qui a créé le dossier
 
 ```Dockerfile
 FROM debian
@@ -170,17 +196,9 @@ USER graphite
 CMD ["echo", "Data container for graphite"]
 ```
 
-### Backups de volumes
-
-**Pour effectuer un backup la méthode recommandée est d'utiliser un conteneur suplémentaire dédié**
-
-- qui accède au volume avec `--volume-from`
-- qui est identique aux autres et donc normalement avec les mêmes UID/GID/permissions.
-
-
+Cela peut mener à des collisions d'UID (typiquement 1000 pour le premier utilisateur) entre l'intérieur et l'extérieur du conteneur et donc a des problèmes de permissions. Bonne pratique utiliser un UID custom pour chaque Dockerfile.
 
 ## Portainer
-
 
 Si vous aviez déjà créé le conteneur Portainer, vous pouvez le relancer en faisant `docker start portainer`, sinon créez-le comme suit :
 
