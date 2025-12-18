@@ -24,7 +24,7 @@ Avec Docker, les projets sont déjà isolés dans des conteneurs. Nous allons do
 - Une fois la construction terminée lancez le conteneur.
 - Le conteneur s’arrête immédiatement. En effet il ne contient aucune commande bloquante et nous n'avons précisé aucune commande au lancement.
 
-:::tip Remarque
+### Remarque
 
 On pourrait ici être tenté d'installer python et pip (installeur de dépendance python) comme suit:
 
@@ -34,9 +34,8 @@ RUN apt-get install -y python3-pip
 ``` 
 Cette étape, qui aurait pu être nécessaire dans un autre contexte : en partant d'un linux vide comme `ubuntu` est ici inutile car l'image officielle python contient déjà ces éléments.
 
-:::
 
-- Pour installer les dépendances python et configurer la variable d'environnement Flask ajoutez:
+- Pour installer les dépendances python ajoutez:
 
 ```Dockerfile
 COPY ./requirements.txt /requirements.txt

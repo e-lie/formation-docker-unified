@@ -25,6 +25,8 @@ locals {
       docker compose logs -f gitlab
 
     GitLab sera accessible à : ${var.gitlab_external_url}
+
+    Connexion admin avec le login root et mdp indiqué dans terraform.tfvars.
   EOT
 
   manual_install_message = <<-EOT
